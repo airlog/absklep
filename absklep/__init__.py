@@ -27,12 +27,12 @@ login_manager.init_app(app)
 @app.route("/")
 def hello_world():
 	s=''
-	if current_user is not None: s=current_user.email
+	if current_user.is_authenticated(): s=current_user.email
 	return ("\n"
             "<div style=\"text-align: center;\">\n"
             "   <h1>Hello, %s</h1>\n"
             "   <span style=\"font-size: 24px;\">get ready for <b>%s</b>!</span>\n"
-            " </div>\n" % (str(current_user.email), __name__)
+            " </div>\n" % (s, __name__)
             )
 
 
