@@ -3,6 +3,8 @@ from hashlib import sha256
 from os import urandom
 from re import compile as Regex
 
+from flask.ext.login import UserMixin
+
 from absklep import app
 
 db = app.db
@@ -67,7 +69,7 @@ class Comment(db.Model):
     text = db.Column(db.String(LONG_TEXT))
 
     
-class Customer(db.Model):
+class Customer(UserMixin, db.Model):
 
     __tablename__ = 'Customers'
 
@@ -85,7 +87,7 @@ class Customer(db.Model):
 
     @staticmethod
     def hash(pwd):
-        return sha256(pwd.encode()).hexdigest()
+        return sha256(pwd).hexdigest()
 
     @staticmethod
     def generate_salt(length=PASSWORD_LENGTH):
@@ -93,12 +95,12 @@ class Customer(db.Model):
 
     @staticmethod
     def combine(salt, pwd):
-        return salt + pwd
+        return salt + pwd.encode(encoding='UTF-8')
 
     def __init__(self, email, password, salt=None):
         if salt is None:
             salt = Customer.generate_salt()
-        self.email, self.password = self.email, Customer.hash(Customer.combine(salt, password))
+        self.email, self.password, self.salt = email, Customer.hash(Customer.combine(salt, password)), ''.join(format(x, '02x') for x in salt)
 
         
 class Property(db.Model):
