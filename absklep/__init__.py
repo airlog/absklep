@@ -63,7 +63,8 @@ def login():
 	if form.validate_on_submit():
 		user = app.db.session.query(Customer).filter(Customer.email==form.email.data).first()
 		if user is not None:
-			#TODO: check if password correct
+			if not user.verify_password(form.pas.data):
+				return render_template('login.html', form=form, message='haslo nieprawidlowe')
 			if login_user(user, remember=form.remember.data):
 				return 'Witaj, '+str(current_user.email)
 	return render_template('login.html', form=form, message='')

@@ -101,6 +101,9 @@ class Customer(UserMixin, db.Model):
         if salt is None:
             salt = Customer.generate_salt()
         self.email, self.password, self.salt = email, Customer.hash(Customer.combine(salt, password)), ''.join(format(x, '02x') for x in salt)
+        
+    def verify_password(self, pwd):
+        return self.password == Customer.hash(Customer.combine(bytes.fromhex(self.salt),pwd))
 
         
 class Property(db.Model):
