@@ -49,6 +49,8 @@ setup(
 
     install_requires = [
         "Flask>=0.10",
+        "Flask-Login>=0.2.10",
+        "Flask-WTF>=0.9.3",
         "Flask-SQLAlchemy>=1.0",
         "SQLAlchemy>=0.9",
     ],
