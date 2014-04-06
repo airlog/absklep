@@ -1,0 +1,59 @@
+{% extends 'index.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Intel</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Parametry</th>
+                        <th>Cena</th>
+                        <th>Dostępność</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="vertical-align: middle;">CORE i3-4330</td>
+                        <td style="vertical-align: middle; font-style: italic;">3.50 GHz, x2/4, 4 MB, 65W, HD 4600, BOX, s-1150, 3.50 GHz, x2/4, 4 MB, 65W, HD 4600, BOX, s-1150</td>
+                        <td style="vertical-align: middle;">479.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">dostępny</span></td>
+                        <td style="vertical-align: middle;"><a href="/products/{{ random }}/"><span class="btn btn-xs btn-default">zobacz</span></a></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;">CORE i5-4670</td>
+                        <td style="vertical-align: middle; font-style: italic;">3.40 GHz, turbo 3.80 GHz, x4/4, 6 MB, 84W, HD 4600, BOX, s-1150</td>
+                        <td style="vertical-align: middle;">815.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-danger">niedostępny</span></td>
+                        <td style="vertical-align: middle;"><a href="/products/{{ random }}/"><span class="btn btn-xs btn-default">zobacz</span></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="frame-title">AMD</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Parametry</th>
+                        <th>Cena</th>
+                        <th>Dostępność</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="vertical-align: middle;">X8 FX-8320</td>
+                        <td style="vertical-align: middle; font-style: italic;">3.50 GHz, turbo: 4.00 GHz, BOX, AM3+</td>
+                        <td style="vertical-align: middle;">529.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">dostępny</span></td>
+                        <td style="vertical-align: middle;"><a href="/products/{{ random }}/"><span class="btn btn-xs btn-default">zobacz</span></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

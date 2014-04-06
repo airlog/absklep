@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/static/styles/default.css"/>
+    <script src="http://code.jquery.com/jquery-2.1.0.js"></script>
+    <script>
+        var loginForm = {
+            show: function() {
+                $("#fullscreen-dim").show();
+                $("#login-form").show();
+
+                var that = this;
+                $(document).keyup(function(e) {
+                    console.log("escape pressed");
+                    if (e.keyCode == 27) {  // esc key
+                        that.hide();
+                    }
+                });
+            },
+
+            hide: function() {
+                $("#fullscreen-dim").hide();
+                $("#login-form").hide();
+                $(document).unbind("keyup");
+            },
+        };
+
+        var registerForm = {
+            onPreRegister: function() {
+                console.log("registerForm.onPreRegister");
+            },
+        };
+
+        function createGui() {
+            $("#fullscreen-dim").hide();
+            $("#login-form").hide();
+        }
+    </script>
+    <title>{% block title %}absklep{% endblock %}</title>
+</head>
+<body onload="createGui()">
+
+<div id="fullscreen-dim"></div>
+{% block forms %}
+{% block loginForm %}
+    <div id="login-form">
+        <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Logowanie</h3>
+            <button type="button" class="close" style="font-size: 32px;" aria-hidden="true" onclick="loginForm.hide()">&times;</button>
+        </div>
+        <form class="form-horizontal" role="form">
+            <div class="margined"><input type="email" class="form-control" placeholder="Twój adres email"></div>
+            <div class="margined"><input type="password" class="form-control" placeholder="Twoje hasło"></div>
+            <div class="margined">
+                <input type="checkbox"><span style="margin-left: 5px;">Zapamiętaj mnie</span></input>
+                <div>
+                    <div class="text-right"><button type="submit" class="btn btn-primary">Zaloguj</button></div>
+                </div>
+                <span>Jeśli nie masz konta możesz się <a href="/auth/signup">zarejestrować</a>. To jest darmowe!</span>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% endblock %}
+
+<div class="container">
+    <div id="top">
+        <h1>[title]<small class="text-subtitle">[subtitle]</small></h1>
+    </div>
+    <div id="menu">
+        <div id="menu-left" class="pull-left">
+            <ul class="list-inline">
+                <li><a href="/products/">Produkty</a></li>
+                <li><a href="/orders/">Historia zamówień</a></li>
+                <li><a href="/about/">O firmie</a></li>
+            </ul>
+        </div>
+        <div id="menu-right" class="text-right">
+            <ul class="list-inline">
+                    <li><a href="/cart/">Koszyk</a></li>
+                {% block menuRight %}
+                    <li><a onclick="loginForm.show()">Logowanie</a></li>
+                {% endblock %}
+            </ul>
+        </div>
+    </div>
+
+    <hr/>
+    <div id="page">
+        {% block page %}
+        <div id="page-left">
+            {% block pageLeft %}
+                <div>
+                    <div class="frame-title">Kategorie</div>
+                    <ul class="list-unstyled" style="padding-left: 5px; padding-right: 5px;">
+                        <li><a href="/products/category/{{ random }}">Procesory (3)</a></li>
+                        <li><a href="/products/category/{{ random }}">Płyty główne (17)</a></li>
+                        <li><a href="/products/category/{{ random }}">Pamięci RAM (2)</a></li>
+                        <li><a href="/products/category/{{ random }}">Dyski twarde (1)</a></li>
+                        <li><a href="/products/category/{{ random }}">Karty graficzne (0)</a></li>
+                        <li><a href="/products/category/{{ random }}">Zasilacze (666)</a></li>
+                        <li><a href="/products/category/{{ random }}">Obudowy (69)</a></li>
+                        <li><a href="/products/category/{{ random }}">Monitory (17)</a></li>
+                        <li><a href="/products/category/{{ random }}">Oprogramowanie (0)</a></li>
+                    </ul>
+                </div>
+            {% endblock %}
+        </div>
+        <div id="page-middle" class="text-justify">
+            {% block pageMiddle %}
+                <div class="product-group">
+                    <div class="frame-title">Polecane</div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                                i3-3120M 2.50, 4096 MB, 500 GB, DVDRW, 17.3", WIFI, BT, Cam, Win8
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- trzeba czyścić bufor float co każde dwa elementy -->
+                    <div class="clearfix"></div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                                i3-3120M 2.50, 4096 MB, 500 GB, DVDRW, 17.3", WIFI, BT, Cam, Win8
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div><br/>
+
+                <div class="product-group">
+                    <div class="frame-title">Ostatnio dodane</div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                                i3-3120M 2.50, 4096 MB, 500 GB, DVDRW, 17.3", WIFI, BT, Cam, Win8
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="product-mini pull-left">
+                        <div class="text-center">
+                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                        </div>
+                        <div>
+                            <div><h4>Acer Aspire One 722</h4></div>
+                            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 5px;">
+                                i3-3120M 2.50, 4096 MB, 500 GB, DVDRW, 17.3", WIFI, BT, Cam, Win8
+                            </div>
+                            <div class="text-right">
+                                <span style="margin-right: 5px;">299.99 PLN</span>
+                                <a href="/products/{{ random }}/"><button class="btn btn-default">Zobacz</button></a>
+                                <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div><br/>
+            {% endblock %}
+        </div>
+        <div id="page-right" class="text-right">
+            {% block pageRight %}
+                <div class="text-center">
+                    <div class="frame-title text-right">Ostatnio ogłądane</div>
+                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    <div class="clearfix"></div>
+    <hr/>
+
+    <div id="footer">
+        {% block footer %}
+            {% block footerMenu %}
+                <div class="menu-block pull-left">
+                    <ul class="list-unstyled">
+                        <label>Informacje</label>
+                        <li><a href="/about/tos">Regulamin</a></li>
+                        <li><a href="/about/privacy">Polityka prywatności</a></li>
+                    </ul>
+                </div>
+                <div class="menu-block pull-left">
+                    <ul class="list-unstyled">
+                        <label>Sklep</label>
+                        <li><a href="/about/contact">Dane kontaktowe</a></li>
+                        <li><a href="/about/contact/form">Kontakt online</a></li>
+                        <li><a href="/about/absklep">O systemie</a></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+                <hr/>
+            {% endblock %}
+
+            {% block footerCopyright %}
+            <div id="copyright" class="text-center">
+                <span>Copyright [year] [company-name]</span><br/>
+                <span>All rights reserved</span><br/>
+            </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+</div>
+
+</body>
+</html>

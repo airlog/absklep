@@ -8,8 +8,12 @@ __version__ = "0.1.0"
 app = Flask(__name__)
 app.db = SQLAlchemy(app)
 
+lorem = 'dummy'
+with open('lorem.txt') as file: lorem = file.read()
+
 import absklep.controllers
 import absklep.models
+import absklep.views
 import absklep.forms
 
 absklep.controllers.load_config(app, package=__name__)

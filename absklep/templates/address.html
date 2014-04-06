@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+
+{% block page %}
+    <div id="register-form">
+        <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Dane adresowe</h3>
+        </div>
+        <form class="form-horizontal" role="form" action="" method="POST">
+            <table id="address-data-table" style="width: 100%;">
+                <tr>
+                    <td colspan="3"><input type="text" class="form-control" name="name" placeholder="Imię adresata" required="true"></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><input type="text" class="form-control" name="surname" placeholder="Nazwisko adresata" required="true"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="street" placeholder="Ulica" required="true"></td>
+                    <td><input type="text" class="form-control" name="housenum" placeholder="Numer domu" required="true" pattern="\d+"></td>
+                    <td><input type="text" class="form-control" name="apartmentnum" placeholder="Numer mieszkania" pattern="\d+\w+"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="postalcode" placeholder="Kod pocztowy, np. XX-XXX" required="true" pattern="\d{2}-\d{3}"></td>
+                    <td colspan="2"><input type="text" class="form-control" name="city" placeholder="Miasto/poczta" required="true"></td>
+                </tr>
+                <tr>
+                    <td class="text-right" colspan="3"><button type="submit" class="btn btn-primary" onclick="addressForm.onPreRegister()">Dalej</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'index.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Szczegóły zamówienia</div>
+        <div style="padding: 5px;">
+			
+            <h4 style="padding-top: 20px; padding-bottom: 10px;">Zamówienie</h4>
+
+            <table class="table" style="display:inline;">
+				<tr>
+					<th>Numer zamówienia</th>
+					<td>123456</td>
+				</tr>
+				<tr>
+					<th>Data złożenia zamówienia</th>
+					<td>13-02-2014</td>
+				</tr>
+				<tr>
+					<th>Status</th>
+					<td><span class="btn btn-xs btn-info">W realizacji</span></td>
+				</tr>
+				<tr>
+					<th>Sposób odbioru</th>
+					<td>za pobraniem</td>
+				</tr>
+            </table>
+
+            <h4 style="padding-top: 20px; padding-bottom: 10px;">Adres dostawy</h4>
+			<table class="table" style="display: inline;">
+				<tr>
+					<td>Billy Gates</td>
+				</tr>
+				<tr>
+					<td>ul. Sezamkowa 12/4</td>
+				</tr>
+				<tr>
+					<td>50-123 Kurkowo</td>
+				</tr>				
+			</table>
+			
+            <h4 style="padding-top: 20px; padding-bottom: 10px;">Produkty</h4>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produkt</th>
+                        <th>Cena jednostkowa</th>
+                        <th>Ilość</th>
+                        <th>Cena</th>
+                    </tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Duży procesor</td>
+                        <td>100.00 PLN</td>
+                        <td>&times; 1</td>
+                        <td>100.00 PLN</td>
+                    </tr>
+                    <tr>
+                        <td>Małe procesor</td>
+                        <td>50.00 PLN</td>
+                        <td>&times; 9</td>
+                        <td>900.00 PLN</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right" colspan="3"><b>Suma</b></td>
+                        <td><span>1000.00 PLN</span></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+{% endblock %}
