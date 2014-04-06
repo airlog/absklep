@@ -1,0 +1,46 @@
+{% extends 'index.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Historia zamówień</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Numer zamówienia</th>
+                        <th>Data zamówienia</th>
+                        <th>Wartość</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="vertical-align: middle;">123456789</td>
+                        <td style="vertical-align: middle;">2014-04-03</td>
+                        <td style="vertical-align: middle;">1000.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-warning">Wysłano</span></td>
+                        <td><a href="/orders/show/{{ random }}/">Szczegóły</a></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;">123456789</td>
+                        <td style="vertical-align: middle;">2014-04-03</td>
+                        <td style="vertical-align: middle;">1000.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">Zakończone</span></td>
+                        <td><a href="/orders/show/{{ random }}/">Szczegóły</a></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;">123456789</td>
+                        <td style="vertical-align: middle;">2014-04-03</td>
+                        <td style="vertical-align: middle;">1000.00 PLN</td>
+                        <td style="vertical-align: middle;"><span class="btn btn-xs btn-info">W realizacji</span></td>
+                        <td><a href="/orders/show/{{ random }}/">Szczegóły</a></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

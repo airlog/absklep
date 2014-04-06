@@ -1,0 +1,49 @@
+{% extends 'index.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Obserwowane</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center">Produkt</th>
+                        <th class="text-center">Cena</th>
+                        <th class="text-center">Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">
+							<a href="../products/1/">Duży procesor</a>
+						</td>
+                        <td class="text-center">
+							100.00 PLN
+						</td>
+						<td class="text-center">
+							<span class="btn btn-xs btn-success">dostępny</span>
+						</td>
+                        <td class="text-right">
+							<button type="button" class="btn btn-sm btn-default">Usuń</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">
+							<a href="../products/1/">Mały procesor</a>
+						</td>
+                        <td class="text-center">
+							50.00 PLN
+						</td>
+						<td class="text-center">
+							<span class="btn btn-xs btn-danger">niedostępny</span>
+						</td>
+                        <td class="text-right">
+							<button type="button" class="btn btn-sm btn-default">Usuń</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
