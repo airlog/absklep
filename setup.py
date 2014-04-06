@@ -53,6 +53,7 @@ setup(
         "Flask-WTF>=0.9.3",
         "Flask-SQLAlchemy>=1.0",
         "SQLAlchemy>=0.9",
+        "markdown==2.4",
     ],
 
     packages = find_packages(exclude = ["tests*"]),

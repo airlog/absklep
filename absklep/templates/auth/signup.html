@@ -6,12 +6,12 @@
             <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Rejestracja</h3>
         </div>
         <form class="form-horizontal" role="form" action="" method="POST">
-            <div class="margined"><input type="email" class="form-control" name="email" placeholder="Twój adres email" required="true"></div>
+            <div class="margined"><input type="email" class="form-control" name="email" placeholder="Twój adres email" required="true" name="email"></div>
             <div class="margined"><input type="email" class="form-control" name="confirm-email" placeholder="Potwierdź adres email" required="true"></div>
-            <div class="margined"><input type="password" class="form-control" name="password" placeholder="Twoje hasło" required="true"></div>
+            <div class="margined"><input type="password" class="form-control" name="password" placeholder="Twoje hasło" required="true" name="pas"></div>
             <div class="margined"><input type="password" class="form-control" name="confirm-password" placeholder="Potwierdź twoje hasło" required="true"></div>
             <div class="margined">
-                <input type="checkbox" name="tos-accepted" required="true"><span style="margin-left: 5px;">Akceptuję <a>regulamin</a> i <a>politykę prywatności</a></span></input>
+                <input type="checkbox" name="tos-accepted" required="true" name="accept"><span style="margin-left: 5px;">Akceptuję <a>regulamin</a> i <a>politykę prywatności</a></span></input>
                 <div>
                     <div class="text-right"><button type="submit" class="btn btn-primary" onclick="registerForm.onPreRegister()">Rejestruj</button></div>
                 </div>

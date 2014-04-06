@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, current_user
@@ -28,7 +29,7 @@ success = "Zostałeś zarejestrowany!"
 fail = "Podany email już istnieje."
 
 
-@app.route("/register/", methods=['GET', 'POST'])
+@app.route("/auth/signup", methods=['GET', 'POST'])
 def register():
     from absklep.models import Customer
 
@@ -42,11 +43,11 @@ def register():
 
             return success
 
-        return render_template('register.html', form=form, message=fail)
-    return render_template('register.html', form=form, message='')
+        return render_template('auth/signup.html', form=form, message=fail)
+    return render_template('auth/signup.html', form=form, message='')
 
 
-@app.route("/login/", methods=['GET', 'POST'])
+@app.route("/auth/signin", methods=['GET', 'POST'])
 def login():
     from absklep.models import Customer
 
@@ -55,10 +56,10 @@ def login():
         user = app.db.session.query(Customer).filter(Customer.email == form.email.data).first()
         if user is not None:
             if not user.verify_password(form.pas.data):
-                return render_template('login.html', form=form, message='haslo nieprawidlowe')
+                return render_template('index.html', form=form, message='haslo nieprawidlowe')
             if login_user(user, remember=form.remember.data):
                 return 'Witaj, ' + str(current_user.email)
-    return render_template('login.html', form=form, message='')
+    return render_template('index.html', form=form, message='')
 
 
 @login_manager.user_loader

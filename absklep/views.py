@@ -26,7 +26,7 @@ def categoryview(cid):
     return render_template('category.html',
                            random=randint(0, 0xFFFFFFFF))
 
-@app.route('/auth/signup')
+#@app.route('/auth/signup')
 def register():
     return render_template('auth/signup.html',
                            lorem=Markup(markdown(lorem, output='html5')))
