@@ -7,13 +7,10 @@ from markdown import markdown
 
 from . import app, lorem
 
+import absklep.forms
 
-@app.route('/')
-@app.route('/products/')
-def index():
-    return render_template('index.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF))
+
+
 
 @app.route('/products/<int:pid>/')
 def productview(pid):

@@ -51,15 +51,15 @@
             <button type="button" class="close" style="font-size: 32px;" aria-hidden="true" onclick="loginForm.hide()">&times;</button>
         </div>
         <form class="form-horizontal" role="form" action="/auth/signin" method="POST">
-            <div class="margined"><input type="email" class="form-control" placeholder="Twój adres email" name="email"></div>
-            <div class="margined"><input type="password" class="form-control" placeholder="Twoje hasło" name="pas"></div>
-            <div class="margined">
-                <input type="checkbox" name="remember"><span style="margin-left: 5px;">Zapamiętaj mnie</span></input>
-                <div>
-                    <div class="text-right"><button type="submit" class="btn btn-primary">Zaloguj</button></div>
-                </div>
-                <span>Jeśli nie masz konta możesz się <a href="/auth/signup">zarejestrować</a>. To jest darmowe!</span>
-            </div>
+			{{ logform.csrf_token }}
+            <div class="margined">{{ logform.email(type="email", class="form-control", placeholder="Twój adres email") }}</div>
+            <div class="margined">{{ logform.pas(type="password", class="form-control", placeholder="Twoje hasło") }}</div>
+            <div class="margined">{{ logform.remember(type="checkbox") }} <span style="margin-left: 5px;">Zapamiętaj mnie</span></div>
+                
+                    <div class="text-right"><input type="submit" class="btn btn-primary" value="Zaloguj"></div>
+                
+                <div><span>Jeśli nie masz konta możesz się <a href="/auth/signup">zarejestrować</a>. To jest darmowe!</span></div>
+            
         </form>
     </div>
 {% endblock %}
