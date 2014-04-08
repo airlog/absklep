@@ -79,9 +79,12 @@
         </div>
         <div id="menu-right" class="text-right">
             <ul class="list-inline">
-                    <li><a href="/cart/">Koszyk</a></li>
                 {% block menuRight %}
-                    <li><a onclick="loginForm.show()">Logowanie</a></li>
+					{% if user %}
+					<li>{{ user }}</li><li><a href="/cart/">Koszyk</a></li><li><a href="/auth/signout/">Wyloguj</a></li>
+					{% else %}
+                    <li><a href="/cart/">Koszyk</a></li><li><a onclick="loginForm.show()">Logowanie</a></li>
+                    {% endif %}
                 {% endblock %}
             </ul>
         </div>

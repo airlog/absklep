@@ -1,7 +1,10 @@
 
 from flask import Flask, request, render_template, flash, url_for, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
+
+from jinja2 import Markup
+from markdown import markdown
 
 from random import randint
 
@@ -19,7 +22,7 @@ import absklep.views
 import absklep.forms
 
 absklep.controllers.load_config(app, package=__name__)
-absklep.controllers.load_database(app)
+#absklep.controllers.load_database(app)
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -35,7 +38,7 @@ def index():
     from jinja2 import Markup
     from markdown import markdown
     if current_user.is_authenticated():
-        return render_template('loggedin.html',
+        return render_template('index.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login(),
@@ -75,12 +78,43 @@ def login():
         user = app.db.session.query(Customer).filter(Customer.email == form.email.data).first()
         if user is not None:
             if not user.verify_password(form.pas.data):
-                return render_template('index.html', form=form, message='haslo nieprawidlowe')
+                flash('Niepoprawny login lub hasło')
+                return render_template('index.html', form=form, message='haslo nieprawidlowe', logform=form)
             if login_user(user, remember=form.remember.data):
-                return render_template('loggedin.html', user=current_user.email, logform=form, mmessage='')
+                return render_template('index.html', user=current_user.email, logform=form, mmessage='')
         return fail
     return render_template('index.html', logform=form, message='')
 
+@app.route("/auth/signout/")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+#define error!!!
+@app.route('/products/<int:pid>/')
+def productview(pid):
+    from absklep.models import Product, Comment, Customer, Property
+	
+    args = {"lorem": Markup(markdown(lorem, output='html5')), "random": randint(0, 0xFFFFFFFF),"logform": absklep.forms.Login()}
+    
+    if current_user.is_authenticated(): args['user'] = current_user.email
+    
+    product = Product.query.get(pid)
+    if product is None: return 'error'
+    
+    comments = list(Comment.query.filter_by(product_id=pid))
+    for c in comments: c.customer_id = Customer.query.get(c.customer_id).email
+    
+    properties = Property.query.filter(Product.properties.any(id=pid)).all()
+    
+    args['product'] = product
+    args['comments'] = comments
+    args['properties'] = properties
+    args['rate'] = sum([ c.rate for c in comments ])//len(comments)
+    return render_template('product.html',
+                           **args)
+                           
 
 @login_manager.user_loader
 def load_user(uid):

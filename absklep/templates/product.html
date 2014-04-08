@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% block pageMiddle %}
-<div class="frame-title">Acer Aspire One 1234</div>
+<div class="frame-title">{{ product.name }}</div>
 
 
 <div style="margin-top: 40px;">
@@ -9,16 +9,14 @@
 		<button class="btn btn-default btn-lg">Obserwuj</button>
 		<button class="btn btn-primary btn-lg">Kup</button>
 	</div>
-	<p>Cena: 2000 PLN</p>
+	<p>Cena: {{ product.unit_price }} PLN</p>
 	<p>Ocena klientów:
-			<img class="star" src="/static/images/star.png"/>
-			<img class="star" src="/static/images/star.png"/>
-			<img class="star" src="/static/images/star.png"/>
-			<img class="star" src="/static/images/star.png"/>
-			<img class="star" src="/static/images/star.png"/>
+			{% for i in range(rate) %}
+				<img class="star" src="/static/images/star.png"/>
+			{% endfor %}
 	</p>
 	<div class="opis">	
-	{{ lorem[:900] }}
+	{{ product.description }}
 	</div>
 
 </div>
@@ -29,80 +27,26 @@
 		<th class="text-right">Parametr</td>
 		<th>Wartość</td>
 	</tr>
+	{% for pro in properties %}
 	<tr>
-		<td class="text-right">Model</td>
-		<td>Acer</td>
+		<td class="text-right">{{ pro.key }}</td>
+		<td>{{ pro.value }}</td>
 	</tr>
-	<tr>
-		<td class="text-right">Dysk</td>
-		<td>500 GB</td>
-	</tr>
-	<tr>
-		<td class="text-right">Pamięć RAM</td>
-		<td>1 GB</td>
-	</tr>
-	<tr>
-		<td class="text-right">Karta dźwiękowa</td>
-		<td>High Definition Audio<br/>
-			Waves MaxxAudio 4<br/>
-			2 wbudowane głośniki<br/>
-			Wbudowany mikrofon<br/>
-		</td>
-	</tr>
-	<tr>
-		<td class="text-right">Pamięć RAM</td>
-		<td>1 GB</td>
-	</tr>
+	{% endfor %}
 </table>	
 </div>	
-	<h4>Comments</h4>
+	<h4>Komentarze</h4>
 		
-	<div class="comment">
-		<div><b>robin3d</b><span class="time">2014-01-03</span></div>
+	{% for comment in comments %}
+		<div class="comment">
+			<div><b>{{ comment.customer_id }}</b><span class="time">{{ comment.date }}</span></div>
 			<span class="rate">
+				{% for i in range(comment.rate) %}
 				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
+				{% endfor %}
 			</span>
-		<div class="text">
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
+			<div class="text">{{ comment.text }}</div>
 		</div>
-	</div>
-
-	<div class="comment">
-		<div><b>robin3d</b><span class="time">2014-01-03</span></div>
-			<span class="rate">
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-			</span>
-		<div class="text">
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		</div>
-	</div>
-
-
-	<div class="comment">
-		<div><b>robin3d</b><span class="time">2014-01-03</span></div>
-			<span class="rate">
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-				<img class="star" src="/static/images/star.png"/>
-			</span>
-		<div class="text">
-		Bardzo bardzo smaczne. Mojej dziewczynie bardzo smakowało. :)
-		</div>
-	</div>
-
+	{% endfor %}
 		
 {% endblock %}

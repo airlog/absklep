@@ -12,11 +12,7 @@ import absklep.forms
 
 
 
-@app.route('/products/<int:pid>/')
-def productview(pid):
-    return render_template('product.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF))
+
 
 @app.route('/products/category/<int:cid>/')
 def categoryview(cid):
