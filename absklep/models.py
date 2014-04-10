@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from hashlib import sha256
 from os import urandom
 from re import compile as Regex
@@ -47,7 +47,8 @@ class Product(db.Model):
     unit_price = db.Column(db.Integer, nullable=False)
     units_in_stock = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(LONG_TEXT))
-    
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.now())
+
     comments = db.relationship('Comment', backref=db.backref('product'))
     properties = db.relationship('Property', backref=db.backref('products'), secondary=product_property_assignment)
 
@@ -114,6 +115,8 @@ class Property(db.Model):
     key = db.Column(db.String(SHORT_TEXT))
     value = db.Column(db.String(SHORT_TEXT))
 
+    def __init__(self, key, value):
+        self.key, self.value = key, value
 
 class Employee(db.Model):
 

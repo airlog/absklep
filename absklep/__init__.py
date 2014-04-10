@@ -36,8 +36,25 @@ def load_config(a, package=None):
         pass
 
 def load_database(a):
-    #a.db.drop_all()
+	
+    def some_data_for_tests():
+        from .models import Product, Property
+        a.db.session.add(Property('Kategoria','Ekrany'))
+        a.db.session.add(Property('Kategoria','Myszki'))
+        a.db.session.add(Property('Producent','Lenovo'))
+        a.db.session.add(Property('Kategoria','Procesory'))
+        a.db.session.add(Property('Kategoria','Baterie'))
+        a.db.session.add(Property('Producent','Asus'))
+        a.db.session.add(Product('Lenovo', 3500, 2, description='bardzo dobry komputer'))
+        a.db.session.add(Product('Samsung', 9999, 4, description='bardzo drogi komputer'))
+        a.db.session.add(Product('IBM', 2999, 4, description='bardzo ładny komputer'))
+        a.db.session.add(Product('Asus1', 3999, 4, description='bardzo asusowy komputer'))
+        a.db.session.add(Product('Asus2', 4999, 4, description='bardzo asusowy komputer'))
+        a.db.session.commit()
+    
+    a.db.drop_all()
     a.db.create_all()
+    some_data_for_tests()
 
 load_config(app, package=__name__)
 load_database(app)

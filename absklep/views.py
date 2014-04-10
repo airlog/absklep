@@ -18,15 +18,30 @@ fail = "Podany email już istnieje."
 def index():
     from jinja2 import Markup
     from markdown import markdown
+    from sqlalchemy import func    
+    from .models import Product, Property
+    
+    def product_rate(product):
+    	rates = [c.rate for c in product.comments]
+    	return sum(rates)/len(rates) if len(rates) > 0 else 0
+    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
+    products_best = sorted(Product.query.all(), key=product_rate)[:4]
+    products_last = Product.query.order_by(Product.date_added.desc())[:4]
+
     return render_template('index.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login())
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           products_best=products_best,
+                           products_last=products_last)
 
 @app.route('/products/category/<int:cid>/')
 def categoryview(cid):
     return render_template('category.html',
-                           random=randint(0, 0xFFFFFFFF))
+                           random=randint(0, 0xFFFFFFFF),
+                           logform=absklep.forms.Login())
 
 @app.route("/auth/signup", methods=['GET', 'POST'])
 def register():
@@ -84,13 +99,15 @@ def logout():
 
 @app.route('/orders/make')
 def makeorderview():
-    return render_template('address.html')
+    return render_template('address.html',
+    	logform=absklep.forms.Login())
 
 @app.route('/cart/')
 def cartview():
     return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF))
+                           random=randint(0, 0xFFFFFFFF),
+                           logform=absklep.forms.Login())
 
 @app.route('/orders/')
 def ordersview():
@@ -127,5 +144,5 @@ def productview(pid):
     args['product'] = product
     args['comments'] = comments
     args['properties'] = properties
-    args['rate'] = sum([ c.rate for c in comments ])//len(comments)
+    args['rate'] = sum([ c.rate for c in comments ])//len(comments) if len(comments) > 0 else 0
     return render_template('product.html', **args)
