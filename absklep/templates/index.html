@@ -80,14 +80,27 @@
         <div id="menu-right" class="text-right">
             <ul class="list-inline">
                 {% block menuRight %}
-					{% if user %}
-					<li>{{ user }}</li><li><a href="/cart/">Koszyk</a></li><li><a href="/auth/signout/">Wyloguj</a></li>
+					{% if g.current_user.is_authenticated() %}
+					    <li>{{ g.current_user.email }}</li><li><a href="/cart/">Koszyk</a></li><li><a href="/auth/signout/">Wyloguj</a></li>
 					{% else %}
-                    <li><a href="/cart/">Koszyk</a></li><li><a onclick="loginForm.show()">Logowanie</a></li>
+                        <li><a href="/cart/">Koszyk</a></li><li><a onclick="loginForm.show()">Logowanie</a></li>
                     {% endif %}
                 {% endblock %}
             </ul>
         </div>
+    </div>
+
+    <div id="flashes">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="frame-title">Wiadomości</div>
+                {% for msg in messages %}
+                    <ul class="">
+                        <li>{{ msg }}</li>
+                    </ul>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
 
     <hr/>
