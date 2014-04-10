@@ -25,7 +25,7 @@ def index():
     	rates = [c.rate for c in product.comments]
     	return sum(rates)/len(rates) if len(rates) > 0 else 0
     
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
     products_best = sorted(Product.query.all(), key=product_rate)[:4]
     products_last = Product.query.order_by(Product.date_added.desc())[:4]
 
@@ -39,9 +39,22 @@ def index():
 
 @app.route('/products/category/<int:cid>/')
 def categoryview(cid):
+    from .models import Product, Property, product_property_assignment
+    
+    products = Product.query\
+        .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
+        .filter(product_property_assignment.columns.property_id == cid)\
+        .all()
+    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    category = Property.query.filter(Property.id == cid).first()
+    
     return render_template('category.html',
                            random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login())
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           products=products,
+                           category=category)
 
 @app.route("/auth/signup", methods=['GET', 'POST'])
 def register():

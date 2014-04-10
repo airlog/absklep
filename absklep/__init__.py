@@ -42,14 +42,30 @@ def load_database(a):
         a.db.session.add(Property('Kategoria','Ekrany'))
         a.db.session.add(Property('Kategoria','Myszki'))
         a.db.session.add(Property('Producent','Lenovo'))
-        a.db.session.add(Property('Kategoria','Procesory'))
         a.db.session.add(Property('Kategoria','Baterie'))
         a.db.session.add(Property('Producent','Asus'))
-        a.db.session.add(Product('Lenovo', 3500, 2, description='bardzo dobry komputer'))
+        
         a.db.session.add(Product('Samsung', 9999, 4, description='bardzo drogi komputer'))
         a.db.session.add(Product('IBM', 2999, 4, description='bardzo ładny komputer'))
         a.db.session.add(Product('Asus1', 3999, 4, description='bardzo asusowy komputer'))
         a.db.session.add(Product('Asus2', 4999, 4, description='bardzo asusowy komputer'))
+       
+        c1 = Property('Kategoria','Laptopy')
+        c2 = Property('Kategoria','Procesory')
+        p1 = Product('Lenovo', 3500, 2, description='bardzo dobry komputer')        
+        p2 = Product('Asus', 2399, 0, description='bardzo szybki komputer')
+        p3 = Product('Intel', 100, 2, description='bardzo tani procesor')        
+        p4 = Product('AMD', 2000, 2, description='bardzo drogi procesor')
+        
+        p1.properties.append(c1)
+        p2.properties.append(c1)
+        p3.properties.append(c2)
+        p4.properties.append(c2)
+
+        a.db.session.add(p1)
+        a.db.session.add(p2)
+        a.db.session.add(p3)
+        a.db.session.add(p4)
         a.db.session.commit()
     
     a.db.drop_all()
