@@ -1,24 +1,19 @@
 
-__envvar__ = "ABSKLEP_SETTINGS"
+from flask import g
+from flask.ext.login import current_user
+
+from . import app, login_manager
 
 
-def load_config(a, package=None):
-    """
-    Loading application configuration from environment variable or, if not set, from config file
-    distributed with this module.
+@app.before_request
+def inject_user():
+    from flask import g
 
-    :param a:   flask's application object
-    """
-    if package is None:
-        package = __name__
-    a.config.from_object("{}.config".format(package))     # default settings
-    try:
-        a.config.from_envvar(__envvar__)                 # override defaults
-    except RuntimeError:
-        pass
+    g.current_user = current_user
 
+@login_manager.user_loader
+def load_user(uid):
+    from absklep.models import Customer
 
-def load_database(a):
-    a.db.drop_all()
-    a.db.create_all()
+    return Customer.query.get(uid)
 
