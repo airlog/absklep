@@ -61,7 +61,7 @@ class Product(db.Model):
 class Comment(db.Model):
 
     __tablename__ = 'Comments'
-	
+
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
@@ -108,15 +108,25 @@ class Customer(UserMixin, db.Model):
 
         
 class Property(db.Model):
-	
+
+    KEY_CATEGORY = 'Kategoria'
+
     __tablename__ = 'Properties'
 
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(SHORT_TEXT))
     value = db.Column(db.String(SHORT_TEXT))
 
+    @staticmethod
+    def get_object_by_tuple(key, value):
+        return Property\
+            .query\
+            .filter(Property.key == key, Property.value == value)\
+            .first()
+
     def __init__(self, key, value):
-        self.key, self.value = key, value
+        self.key, self.value = str(key), str(value)
+
 
 class Employee(db.Model):
 
@@ -134,8 +144,8 @@ class Employee(db.Model):
 
     orders = db.relationship('Order', backref=db.backref('employee'))
     archivals = db.relationship('Archival', backref=db.backref('employee'))
-	
-	
+
+
 class Order(db.Model):
 
     __tablename__ = 'Orders'
@@ -241,6 +251,6 @@ class Archival(db.Model):
     address = db.Column(db.String(SHORT_TEXT), nullable=False)
     city = db.Column(db.String(SHORT_TEXT), nullable=False)
     postal_code = db.Column(db.String(6), nullable=False)
-	
+
     products = db.relationship('Product', backref=db.backref('archivals'), secondary=product_archival_assignment)
-	
+

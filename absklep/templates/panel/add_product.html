@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+
+{% block loginForm %}
+{% endblock %}
+
+{% block page %}
+    <div>
+        <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Nowy produkt</h3>
+        </div>
+        <form id="add-product-form" class="form-horizontal" role="form" action="" method="POST" name="add-product-form">
+            <input id="add-product-form-properties-count" type="hidden" name="properties_count" value="0"/>
+            <table id="add-product-table" class="form-table" style="width: 100%;">
+                <tr>
+                    <td colspan="3"><input type="text" class="form-control" name="product_name" placeholder="Nazwa produktu" required="true"></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><input type="text" class="form-control" name="category" placeholder="Kategoria" required="true"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="text" class="form-control" name="unit_price" placeholder="Cena jednostkowa" required="true" pattern="\d+.\d+"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="text" class="form-control" name="units_in_stock" placeholder="Dostępnych sztuk" required="true" pattern="\d+"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><textarea class="form-control" name="description" placeholder="Opis" style="resize: vertical;"></textarea></td>
+                </tr>
+                <tr id="template-property" class="hidden add-product-form-data">
+                    <td><input form="add-product-form" type="text" class="form-control" placeholder="Parametr (właściwość)"/></td>
+                    <td><input form="add-product-form" type="text" class="form-control" placeholder="Wartość"/></td>
+                </tr>
+            </table>
+            <table class="form-table" style="width: 100%;">
+                <tr>
+                    <td class="text-right">
+                        <span class="btn btn-default" onclick="addProductForm.newProperty()">Dodaj parametr</span>
+                        <button type="submit" class="btn btn-primary" onclick="addProductForm.onSubmit()">Dodaj</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+{% endblock %}
