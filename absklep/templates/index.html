@@ -5,39 +5,7 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css"/>
     <link rel="stylesheet" href="/static/styles/default.css"/>
     <script src="http://code.jquery.com/jquery-2.1.0.js"></script>
-    <script>
-        var loginForm = {
-            show: function() {
-                $("#fullscreen-dim").show();
-                $("#login-form").show();
-
-                var that = this;
-                $(document).keyup(function(e) {
-                    console.log("escape pressed");
-                    if (e.keyCode == 27) {  // esc key
-                        that.hide();
-                    }
-                });
-            },
-
-            hide: function() {
-                $("#fullscreen-dim").hide();
-                $("#login-form").hide();
-                $(document).unbind("keyup");
-            },
-        };
-
-        var registerForm = {
-            onPreRegister: function() {
-                console.log("registerForm.onPreRegister");
-            },
-        };
-
-        function createGui() {
-            $("#fullscreen-dim").hide();
-            $("#login-form").hide();
-        }
-    </script>
+    <script src="/static/scripts/gui.js"></script>
     <title>{% block title %}absklep{% endblock %}</title>
 </head>
 <body onload="createGui()">

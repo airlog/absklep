@@ -159,3 +159,80 @@ def productview(pid):
     args['properties'] = properties
     args['rate'] = sum([ c.rate for c in comments ])//len(comments) if len(comments) > 0 else 0
     return render_template('product.html', **args)
+
+@app.route('/panel/products/', methods=['GET', 'POST'])
+def add_product_view():
+    def read_form(name, allow_none=False, cast=None):
+        '''
+        Odczytuje dane o zadanym kluczu 'name' z otrzymanego formularza. Jesli 'allow_none' jest równe False i wartosc
+        odczytana z formularza bedzie None to wyrzuci wyjatek ValueError. Argument 'cast' powinien byc funkcja przyjmujaca
+        jeden argument i zwracajaca wynik. Zostanie jej podana odczytana wartość.
+        '''
+
+        from flask import request
+
+        tmp = request.form[name]
+
+        if tmp is None and not allow_none:
+            raise ValueError('None not allowed')
+
+        if cast is None:
+            return tmp
+        else:
+            return cast(tmp)
+
+    def get_properties_names(length):
+        for i in range(length):
+            yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
+
+    from flask import request
+
+    if request.method == 'POST':
+        from .models import Product, Property
+
+        try:
+            # odczytywanie danych z formularza
+            product_name = read_form('product_name')
+            properties_count = read_form('properties_count', cast=int)
+            category = read_form('category')
+            unit_price = read_form('unit_price', cast=float)
+            units_in_stock = read_form('units_in_stock', cast=int)
+            description = read_form('description')
+            properties = [(request.form[keyName], request.form[valueName]) for keyName, valueName in get_properties_names(properties_count)]
+
+            # przefiltrowanie zbednych wartosci
+            properties = list(
+                filter(lambda t: t[0] is not None and len(t[0]) > 0 and t[1] is not None and len(t[1]) > 0,
+                properties))
+
+            # sprawdzanie czy taka kategoria juz istnieje
+            # jesli nie, tworzymy nowa kategorie
+            categoryObj = Property.get_object_by_tuple(Property.KEY_CATEGORY, category)
+            if categoryObj is None:
+                categoryObj = Property(Property.KEY_CATEGORY, category)
+
+            # sprawdzanie czy dana para (cecha, wartosc) juz istnieje
+            # jesli nie, tworzymy nowy obiekt
+            propertiesObjs = []
+            for key, value in properties:
+                obj = Property.get_object_by_tuple(key, value)
+                if obj is None:
+                    obj = Property(key, value)
+                propertiesObjs.append(obj)
+
+            # tworzenie nowego produktu i dodawanie mu cech
+            product = Product(product_name, unit_price, instock=units_in_stock, description=description)
+            product.properties.extend(propertiesObjs)
+            product.properties.append(categoryObj)
+
+            app.db.session.add(product)
+            app.db.session.commit()
+
+            flash("Dodano produkt")
+        except ValueError:
+            flash('Dodanie produktu nieudane')
+
+        return redirect(url_for('add_product_view'))
+
+    return render_template('panel/add_product.html',
+                           logform=absklep.forms.Login())
