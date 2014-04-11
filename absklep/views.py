@@ -114,13 +114,7 @@ def logout():
 def makeorderview():
     return render_template('address.html',
     	logform=absklep.forms.Login())
-
-@app.route('/cart/')
-def cartview():
-    return render_template('cart.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login())
+    	
 
 @app.route('/orders/')
 def ordersview():
@@ -281,3 +275,43 @@ def observedview():
                            items=current_user.observed,
                            user=current_user.email,
                            categories=categories)
+
+
+@app.route('/products/<int:pid>/add')
+def add2cart(pid):
+	
+    from flask import request, make_response
+	
+    resp = make_response(redirect(url_for('index')))
+    cart = request.cookies.get('cart','')
+    if str(pid) not in cart.split('.'):
+        resp.set_cookie('cart', cart+'.'+str(pid))
+	
+    flash('Produkt dodano do koszyka.')
+    return resp
+    
+@app.route('/products/<int:pid>/remove/')
+def removecart(pid):
+	
+    from flask import request, make_response
+	
+    resp = make_response(redirect(url_for('cartview')))
+    cart = request.cookies.get('cart','').split('.')
+    cart.remove(str(pid))
+    resp.set_cookie('cart','.'.join(cart))
+	
+    return resp
+
+@app.route('/cart/')
+def cartview():
+    
+    from flask import request
+    from absklep.models import Product
+    
+    cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
+    
+    return render_template('cart.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           random=randint(0, 0xFFFFFFFF),
+                           logform=absklep.forms.Login(),
+                           cart=cart)
