@@ -38,7 +38,7 @@ def load_config(a, package=None):
 def load_database(a):
 	
     def some_data_for_tests():
-        from .models import Product, Property, Customer, Comment
+        from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount
         from datetime import date
         
         a.db.session.add(Property('Kategoria','Ekrany'))
@@ -71,6 +71,30 @@ def load_database(a):
         
         a.db.session.add(Customer('plusplus@gmail.com', 'kostek'))
         a.db.session.add(Comment(1,1,date.today(),3,'kiepski'))
+        
+        u1 = Customer('admin1@pl','123')
+        e1 = Employee('Marek','Marek','12345678901','marek@buziaczek.pl','123')
+
+        a.db.session.add(e1)
+        a.db.session.commit()
+
+        o1 = Order()
+        o1.set_employee(e1.id)
+        o1.set_status(Order.ENUM_STATUS_VALUES[0]).set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])        
+        o1.set_firstname('Ala').set_surname('Makota').set_address('ul. Ładna 1/2').set_city('Wrocław').set_postal_code('50-000')
+        o1.add_product_amount(ProductAmount(2).set_product(p1))
+        o1.add_product_amount(ProductAmount(1).set_product(p2))
+        o1.count_price()
+
+        o2 = Order()
+        o2.set_employee(e1.id)
+        o2.set_status(Order.ENUM_STATUS_VALUES[1]).set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[1])        
+        o2.set_firstname('Ala').set_surname('Makota').set_address('ul. Ładna 1/2').set_city('Wrocław').set_postal_code('50-000')
+        o2.count_price()
+
+        u1.orders.append(o1)
+        u1.orders.append(o2)
+        a.db.session.add(u1)
         
         a.db.session.commit()
     

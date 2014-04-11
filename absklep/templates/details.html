@@ -10,32 +10,32 @@
             <table class="table" style="display:inline;">
 				<tr>
 					<th>Numer zamówienia</th>
-					<td>123456</td>
+					<td>{{order.id}}</td>
 				</tr>
 				<tr>
 					<th>Data złożenia zamówienia</th>
-					<td>13-02-2014</td>
+					<td>{{order.date_ordered}}</td>
 				</tr>
 				<tr>
 					<th>Status</th>
-					<td><span class="btn btn-xs btn-info">W realizacji</span></td>
+					<td><span class="btn btn-xs btn-info">{{order.status}}</span></td>
 				</tr>
 				<tr>
 					<th>Sposób odbioru</th>
-					<td>za pobraniem</td>
+					<td>{{order.payment_method}}</td>
 				</tr>
             </table>
 
             <h4 style="padding-top: 20px; padding-bottom: 10px;">Adres dostawy</h4>
 			<table class="table" style="display: inline;">
 				<tr>
-					<td>Billy Gates</td>
+					<td>{{order.firstname}} {{order.surname}}</td>
 				</tr>
 				<tr>
-					<td>ul. Sezamkowa 12/4</td>
+					<td>{{order.address}}</td>
 				</tr>
 				<tr>
-					<td>50-123 Kurkowo</td>
+					<td>{{order.postal_code}} {{order.city}}</td>
 				</tr>				
 			</table>
 			
@@ -52,21 +52,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for pa in order.products_amount %}
                     <tr>
-                        <td>Duży procesor</td>
-                        <td>100.00 PLN</td>
-                        <td>&times; 1</td>
-                        <td>100.00 PLN</td>
+                        <td>{{ pa.product.name }}</td>
+                        <td>{{ pa.product.unit_price/100.0 }} PLN</td>
+                        <td>&times; {{ pa.amount }}</td>
+                        <td>{{ (pa.amount * pa.product.unit_price)/100.0 }} PLN</td>
                     </tr>
-                    <tr>
-                        <td>Małe procesor</td>
-                        <td>50.00 PLN</td>
-                        <td>&times; 9</td>
-                        <td>900.00 PLN</td>
-                    </tr>
+                    {% endfor %}
                     <tr>
                         <td class="text-right" colspan="3"><b>Suma</b></td>
-                        <td><span>1000.00 PLN</span></td>
+                        <td><span>{{ order.price/100.00 }} PLN</span></td>
                         <td></td>
                     </tr>
                 </tbody>

@@ -114,20 +114,55 @@ def logout():
 def makeorderview():
     return render_template('address.html',
     	logform=absklep.forms.Login())
-    	
 
-@app.route('/orders/')
-def ordersview():
-    return render_template('orders.html',
+@app.route('/cart/')
+def cartview():
+    return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login())
 
+@app.route('/orders/')
+@login_required
+def ordersview():
+    from flask import g
+    from .models import Order, Customer, Property
+    
+    if not g.current_user.is_authenticated():
+        flash('Nie jestes zalogowany!')
+        return redirect(url_for('index'))
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    orders = g.current_user.orders
+    return render_template('orders.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           random=randint(0, 0xFFFFFFFF),
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           orders=orders)
+
+@app.route('/observed/')
+def observedview():
+    return render_template('observed.html',
+                           lorem=Markup(markdown(lorem, output='html5')))
 
 @app.route('/orders/show/<int:oid>/')
+@login_required
 def detailsview(oid):
+    from flask import g
+    from .models import Order, Property
+    
+    if not g.current_user.is_authenticated():
+        flash('Nie jestes zalogowany!')
+        return redirect(url_for('index'))
+    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
+#    print(orders[0].products_amount)
     return render_template('details.html',
-                           lorem=Markup(markdown(lorem, output='html5')))
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           order=orders[0])
 
 #define error!!!
 @app.route('/products/<int:pid>/')
@@ -226,92 +261,3 @@ def add_product_view():
 
     return render_template('panel/add_product.html',
                            logform=absklep.forms.Login())
-
-
-@app.route('/products/<int:pid>/observe/')
-def observe_product(pid):
-    
-    from absklep.models import Product
-    
-    if current_user.is_anonymous(): 
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('productview', pid=pid))
-    
-    p = Product.query.get(pid)
-    current_user.observed.append(p)
-    app.db.session.commit()
-    flash('Obserwujesz '+p.name)
-    return redirect(url_for('index'))
-
-@app.route('/products/<int:pid>/unobserve/')
-def unobserve_product(pid):
-	
-    from absklep.models import Product
-	
-    if current_user.is_anonymous(): 
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('productview', pid=pid))
-    
-    p = Product.query.get(pid)
-    current_user.observed.remove(p)
-    app.db.session.commit()
-    flash('Obserwujesz '+p.name)
-    return redirect(url_for('observedview'))
-    
-@app.route('/observed/')
-def observedview():
-	
-    from absklep.models import Property
-	
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
-	
-    if current_user.is_anonymous():
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('index'))
-        
-    return render_template('observed.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           logform=absklep.forms.Login(),
-                           items=current_user.observed,
-                           user=current_user.email,
-                           categories=categories)
-
-
-@app.route('/products/<int:pid>/add')
-def add2cart(pid):
-	
-    from flask import request, make_response
-	
-    resp = make_response(redirect(url_for('index')))
-    cart = request.cookies.get('cart','')
-    if str(pid) not in cart.split('.'):
-        resp.set_cookie('cart', cart+'.'+str(pid))
-	
-    flash('Produkt dodano do koszyka.')
-    return resp
-    
-@app.route('/products/<int:pid>/remove/')
-def removecart(pid):
-	
-    from flask import request, make_response
-	
-    resp = make_response(redirect(url_for('cartview')))
-    cart = request.cookies.get('cart','').split('.')
-    cart.remove(str(pid))
-    resp.set_cookie('cart','.'.join(cart))
-	
-    return resp
-
-@app.route('/cart/')
-def cartview():
-    
-    from flask import request
-    from absklep.models import Product
-    
-    cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
-    
-    return render_template('cart.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           cart=cart)
