@@ -68,6 +68,9 @@ class Comment(db.Model):
     date = db.Column(db.Date, nullable=False)
     rate = db.Column(db.Integer, nullable=False)
     text = db.Column(db.String(LONG_TEXT))
+    
+    def __init__(self, pid, uid, date, rate, text):
+        self.product_id, self.customer_id, self.date, self.rate, self.text = pid, uid, date, rate, text
 
     
 class Customer(UserMixin, db.Model):
@@ -79,7 +82,7 @@ class Customer(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(SHORT_TEXT), unique=True, nullable=False)
     password = db.Column(db.String(PASSWORD_LENGTH), nullable=False)
-    salt = db.Column(db.String(PASSWORD_LENGTH), nullable=False)
+    salt = db.Column(db.String(2*PASSWORD_LENGTH), nullable=False)
 
     comments = db.relationship('Comment', backref=db.backref('customer'))
     orders = db.relationship('Order', backref=db.backref('customer'))
@@ -158,8 +161,8 @@ class Order(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'), nullable=False)
     date_ordered = db.Column(db.Date, nullable=False)
-    status = db.Column(db.Enum(*ENUM_STATUS_VALUES), nullable=False)
-    payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES), nullable=False)
+    status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='s'), nullable=False)
+    payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES,name='t'), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     firstname = db.Column(db.String(SHORT_TEXT), nullable=False)
     surname = db.Column(db.String(SHORT_TEXT), nullable=False)
@@ -243,8 +246,8 @@ class Archival(db.Model):
     employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'), nullable=False)
     date_ordered = db.Column(db.Date, nullable=False)
     date_finished = db.Column(db.Date, nullable=False)
-    status = db.Column(db.Enum(*ENUM_STATUS_VALUES), nullable=False)
-    payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES), nullable=False)
+    status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='u'), nullable=False)
+    payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES, name='v'), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     firstname = db.Column(db.String(SHORT_TEXT), nullable=False)
     surname = db.Column(db.String(SHORT_TEXT), nullable=False)

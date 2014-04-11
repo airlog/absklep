@@ -14,34 +14,28 @@
                     </tr>
                 </thead>
                 <tbody>
+					{% for product in items %}
                     <tr>
                         <td class="text-center">
-							<a href="../products/1/">Duży procesor</a>
+							<a href="../products/{{ product.id }}">{{ product.name }}</a>
 						</td>
                         <td class="text-center">
-							100.00 PLN
+							{{ product.unit_price }} PLN
 						</td>
+						{% if product.units_in_stock > 0 %}
 						<td class="text-center">
 							<span class="btn btn-xs btn-success">dostępny</span>
 						</td>
-                        <td class="text-right">
-							<button type="button" class="btn btn-sm btn-default">Usuń</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">
-							<a href="../products/1/">Mały procesor</a>
-						</td>
-                        <td class="text-center">
-							50.00 PLN
-						</td>
+						{% else %}
 						<td class="text-center">
 							<span class="btn btn-xs btn-danger">niedostępny</span>
 						</td>
+						{% endif %}
                         <td class="text-right">
-							<button type="button" class="btn btn-sm btn-default">Usuń</button>
+							<a class="btn btn-sm btn-default" href="../products/{{ product.id }}/unobserve">Usuń</a>
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

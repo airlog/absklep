@@ -38,7 +38,9 @@ def load_config(a, package=None):
 def load_database(a):
 	
     def some_data_for_tests():
-        from .models import Product, Property
+        from .models import Product, Property, Customer, Comment
+        from datetime import date
+        
         a.db.session.add(Property('Kategoria','Ekrany'))
         a.db.session.add(Property('Kategoria','Myszki'))
         a.db.session.add(Property('Producent','Lenovo'))
@@ -66,6 +68,10 @@ def load_database(a):
         a.db.session.add(p2)
         a.db.session.add(p3)
         a.db.session.add(p4)
+        
+        a.db.session.add(Customer('plusplus@gmail.com', 'kostek'))
+        a.db.session.add(Comment(1,1,date.today(),3,'kiepski'))
+        
         a.db.session.commit()
     
     a.db.drop_all()

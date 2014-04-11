@@ -129,10 +129,6 @@ def ordersview():
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login())
 
-@app.route('/observed/')
-def observedview():
-    return render_template('observed.html',
-                           lorem=Markup(markdown(lorem, output='html5')))
 
 @app.route('/orders/show/<int:oid>/')
 def detailsview(oid):
@@ -236,3 +232,52 @@ def add_product_view():
 
     return render_template('panel/add_product.html',
                            logform=absklep.forms.Login())
+
+
+@app.route('/products/<int:pid>/observe/')
+def observe_product(pid):
+    
+    from absklep.models import Product
+    
+    if current_user.is_anonymous(): 
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('productview', pid=pid))
+    
+    p = Product.query.get(pid)
+    current_user.observed.append(p)
+    app.db.session.commit()
+    flash('Obserwujesz '+p.name)
+    return redirect(url_for('index'))
+
+@app.route('/products/<int:pid>/unobserve/')
+def unobserve_product(pid):
+	
+    from absklep.models import Product
+	
+    if current_user.is_anonymous(): 
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('productview', pid=pid))
+    
+    p = Product.query.get(pid)
+    current_user.observed.remove(p)
+    app.db.session.commit()
+    flash('Obserwujesz '+p.name)
+    return redirect(url_for('observedview'))
+    
+@app.route('/observed/')
+def observedview():
+	
+    from absklep.models import Property
+	
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
+	
+    if current_user.is_anonymous():
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('index'))
+        
+    return render_template('observed.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           items=current_user.observed,
+                           user=current_user.email,
+                           categories=categories)
