@@ -113,6 +113,10 @@ body {
     font-size: 10px;
 }
 
+#stars-comment-form span:hover {
+    cursor: pointer;
+}
+
 .form-table tr td, #address-data-table tr td {
     padding: 5px;
 }

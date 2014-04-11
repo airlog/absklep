@@ -60,16 +60,18 @@ class Product(db.Model):
 
 class Comment(db.Model):
 
+    RATE_ALLOWED_VALUES = [1, 2, 3, 4, 5]
+
     __tablename__ = 'Comments'
 
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, default=date.today())
     rate = db.Column(db.Integer, nullable=False)
     text = db.Column(db.String(LONG_TEXT))
     
-    def __init__(self, pid, uid, date, rate, text):
+    def __init__(self, pid, uid, rate, text, date=None):
         self.product_id, self.customer_id, self.date, self.rate, self.text = pid, uid, date, rate, text
 
     
@@ -159,7 +161,7 @@ class Order(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'))
     date_ordered = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='s'), nullable=False)
     payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES,name='t'), nullable=False)
@@ -172,12 +174,14 @@ class Order(db.Model):
 
     products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
 
-    @staticmethod
-    def format_datetime(dt):
-        return "{}-{}-{}".format(dt.year, dt.month, dt.day)
-
     def __init__(self, d=date.today()):
-        self.date_ordered = Order.format_datetime(d)
+        self.date_ordered = d
+
+    def set_customer(self, customer):
+        if isinstance(customer, Customer):
+            customer = customer.id
+        self.customer_id = customer
+        return self
 
     def set_payment_method(self, mt):
         self.payment_method = mt
@@ -190,9 +194,12 @@ class Order(db.Model):
         return self
 
     def set_price(self, price):
-        if not isinstance(price, float):
-            price = float(price)
         self.price = price
+        return self
+
+    def set_destination_name(self, name):
+        self.firstname = name
+        self.surname = name
         return self
 
     def set_address(self, addr):

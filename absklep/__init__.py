@@ -38,7 +38,7 @@ def load_config(a, package=None):
 def load_database(a):
 	
     def some_data_for_tests():
-        from .models import Product, Property, Customer, Comment
+        from .models import Product, Property, Customer, Comment, Order
         from datetime import date
         
         a.db.session.add(Property('Kategoria','Ekrany'))
@@ -68,12 +68,45 @@ def load_database(a):
         a.db.session.add(p2)
         a.db.session.add(p3)
         a.db.session.add(p4)
-        
+
         a.db.session.add(Customer('plusplus@gmail.com', 'kostek'))
-        a.db.session.add(Comment(1,1,date.today(),3,'kiepski'))
-        
+        a.db.session.add(Comment(1,1,3,'kiepski'))
+
         a.db.session.commit()
-    
+
+        # zamówienie dla użytkownika plusplus@gmail.com (o id = 1)
+        # już skomentował
+        a.db.session.add(
+            Order()
+            .add_product(Product.query.get(1))
+            .set_customer(1)
+            .set_destination_name('ABSklep')
+            .set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])
+            .set_status(Order.ENUM_STATUS_VALUES[0])
+            .set_price(10000 * 100)
+            .set_address('wiocha 12')
+            .set_city('wiochowisko')
+            .set_postal_code('69-666')
+        )
+
+        # zamówienie dla użytkownika sample@gmail.com (o id = 2)
+        # jeszcze nie skomentował
+        a.db.session.add(Customer('sample@gmail.com', 'sample'))
+        a.db.session.add(
+            Order()
+            .add_product(Product.query.get(1))
+            .set_customer(2)
+            .set_destination_name('ABSklep')
+            .set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])
+            .set_status(Order.ENUM_STATUS_VALUES[0])
+            .set_price(10000 * 100)
+            .set_address('wiocha 12')
+            .set_city('wiochowisko')
+            .set_postal_code('69-666')
+        )
+
+        a.db.session.commit()
+
     a.db.drop_all()
     a.db.create_all()
     some_data_for_tests()
