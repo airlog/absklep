@@ -1,8 +1,7 @@
 {% extends "index.html" %}
+
 {% block pageMiddle %}
 <div class="frame-title">{{ product.name }}</div>
-
-
 <div style="margin-top: 40px;">
 	<img class="pull-left" style="border: solid 2px #a0c5e4; margin: 0px 10px 10px 10px;" src="/static/images/nophoto.png" alt="brak zdjecia" width="250" height="250"/>
 	<div class="pull-right" >
@@ -18,7 +17,6 @@
 	<div class="opis">	
 	{{ product.description }}
 	</div>
-
 </div>
 
 <div class="clearfix">
@@ -34,9 +32,45 @@
 	</tr>
 	{% endfor %}
 </table>	
-</div>	
-	<h4>Komentarze</h4>
-		
+</div>
+
+    <div>
+        <div class="frame-title">Komentarze</div>
+        {% if allow_comment %}
+        <form id="comment-form" class="form-horizontal" role="form" action="comments/new" method="POST" name="add-product-form">
+            <input type="hidden" name="rate" value="0" pattern="[1,2,3,4,5]{1}"/>
+            <table class="form-table" style="width: 100%;">
+                <tr>
+                    <td>Ocena</td>
+                    <td>
+                        <span id="stars-comment-form" class="list-inline" style="font-size: 24px;">
+                            <span onclick="addCommentForm.clickStar(1)">&star;</span>
+                            <span onclick="addCommentForm.clickStar(2)">&star;</span>
+                            <span onclick="addCommentForm.clickStar(3)">&star;</span>
+                            <span onclick="addCommentForm.clickStar(4)">&star;</span>
+                            <span onclick="addCommentForm.clickStar(5)">&star;</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><textarea class="form-control" name="comment" placeholder="Skomentuj produkt..." style="resize: vertical;"></textarea></td>
+                </tr>
+            </table>
+            <table class="form-table" style="width: 100%;">
+                <tr>
+                    <td class="text-right">
+                        <span class="btn btn-default" onclick="addCommentForm.clear()">Wyczyść</span>
+                        <button type="submit" class="btn btn-primary">Napisz</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        {% else %}
+            <span>Nie masz prawa do komentowania produktu!</span><br/>
+            <span>Żeby komentować musisz być zalogowany i zakupić produkt, ponadto każdy produkt możesz komentować tylko raz.</span>
+        {% endif %}
+    </div>
+
 	{% for comment in comments %}
 		<div class="comment">
 			<div><b>{{ comment.customer_id }}</b><span class="time">{{ comment.date }}</span></div>

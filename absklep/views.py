@@ -115,13 +115,6 @@ def makeorderview():
     return render_template('address.html',
     	logform=absklep.forms.Login())
 
-@app.route('/cart/')
-def cartview():
-    return render_template('cart.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login())
-
 @app.route('/orders/')
 @login_required
 def ordersview():
@@ -139,11 +132,6 @@ def ordersview():
                            logform=absklep.forms.Login(),
                            categories=categories,
                            orders=orders)
-
-@app.route('/observed/')
-def observedview():
-    return render_template('observed.html',
-                           lorem=Markup(markdown(lorem, output='html5')))
 
 @app.route('/orders/show/<int:oid>/')
 @login_required
@@ -167,18 +155,35 @@ def detailsview(oid):
 #define error!!!
 @app.route('/products/<int:pid>/')
 def productview(pid):
-    from absklep.models import Product, Comment, Customer, Property
+    def is_allowed_to_comment(user, product):
+        # niezalogowany nie może komentować
+        if not user.is_authenticated():
+            return False
 
-    args = {"lorem": Markup(markdown(lorem, output='html5')), "random": randint(0, 0xFFFFFFFF),"logform": absklep.forms.Login()}
+        product_ordered = product.id in (p.product.id for order in user.orders for p in order.products_amount)
+        already_commented = product.id in (c.product_id for c in user.comments)
+
+        return product_ordered and not already_commented
+
+    from flask import abort, g
+    from .models import Product, Comment, Customer, Property
+
+    args = {
+        "lorem": Markup(markdown(lorem, output='html5')),
+        "random": randint(0, 0xFFFFFFFF),
+        "logform": absklep.forms.Login(),
+    }
 
     product = Product.query.get(pid)
-    if product is None: return 'error'
+    if product is None:
+        abort(500)
 
     comments = list(Comment.query.filter_by(product_id=pid))
     for c in comments: c.customer_id = Customer.query.get(c.customer_id).email
 
     properties = Property.query.filter(Product.properties.any(id=pid)).all()
 
+    args['allow_comment'] = is_allowed_to_comment(g.current_user, product)
     args['product'] = product
     args['comments'] = comments
     args['properties'] = properties
@@ -187,30 +192,12 @@ def productview(pid):
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
 def add_product_view():
-    def read_form(name, allow_none=False, cast=None):
-        '''
-        Odczytuje dane o zadanym kluczu 'name' z otrzymanego formularza. Jesli 'allow_none' jest równe False i wartosc
-        odczytana z formularza bedzie None to wyrzuci wyjatek ValueError. Argument 'cast' powinien byc funkcja przyjmujaca
-        jeden argument i zwracajaca wynik. Zostanie jej podana odczytana wartość.
-        '''
-
-        from flask import request
-
-        tmp = request.form[name]
-
-        if tmp is None and not allow_none:
-            raise ValueError('None not allowed')
-
-        if cast is None:
-            return tmp
-        else:
-            return cast(tmp)
-
     def get_properties_names(length):
         for i in range(length):
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
 
     from flask import request
+    from .util import read_form
 
     if request.method == 'POST':
         from .models import Product, Property
@@ -261,3 +248,126 @@ def add_product_view():
 
     return render_template('panel/add_product.html',
                            logform=absklep.forms.Login())
+
+@app.route('/products/<int:pid>/observe/')
+def observe_product(pid):
+    
+    from absklep.models import Product
+    
+    if current_user.is_anonymous(): 
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('productview', pid=pid))
+    
+    p = Product.query.get(pid)
+    current_user.observed.append(p)
+    app.db.session.commit()
+    flash('Obserwujesz '+p.name)
+    return redirect(url_for('index'))
+
+@app.route('/products/<int:pid>/unobserve/')
+def unobserve_product(pid):
+	
+    from absklep.models import Product
+	
+    if current_user.is_anonymous(): 
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('productview', pid=pid))
+    
+    p = Product.query.get(pid)
+    current_user.observed.remove(p)
+    app.db.session.commit()
+    flash('Obserwujesz '+p.name)
+    return redirect(url_for('observedview'))
+    
+@app.route('/observed/')
+def observedview():
+	
+    from absklep.models import Property
+	
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
+	
+    if current_user.is_anonymous():
+        flash('Musisz się zalogować, żeby obserwować produkty')
+        return redirect(url_for('index'))
+        
+    return render_template('observed.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           items=current_user.observed,
+                           user=current_user.email,
+                           categories=categories)
+
+
+@app.route('/products/<int:pid>/add')
+def add2cart(pid):
+	
+    from flask import request, make_response
+	
+    resp = make_response(redirect(url_for('index')))
+    cart = request.cookies.get('cart','')
+    if str(pid) not in cart.split('.'):
+        resp.set_cookie('cart', cart+'.'+str(pid))
+	
+    flash('Produkt dodano do koszyka.')
+    return resp
+    
+@app.route('/products/<int:pid>/remove/')
+def removecart(pid):
+	
+    from flask import request, make_response
+	
+    resp = make_response(redirect(url_for('cartview')))
+    cart = request.cookies.get('cart','').split('.')
+    cart.remove(str(pid))
+    resp.set_cookie('cart','.'.join(cart))
+	
+    return resp
+
+@app.route('/cart/')
+def cartview():
+    
+    from flask import request
+    from absklep.models import Product
+    
+    cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
+    
+    return render_template('cart.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           random=randint(0, 0xFFFFFFFF),
+                           logform=absklep.forms.Login(),
+                           cart=cart)
+
+@app.route('/products/<int:pid>/comments/new', methods=['POST'])
+@login_required
+def new_comment_product(pid):
+    from flask import g, abort
+
+    from .models import Comment, Product
+    from .util import read_form
+
+    user = g.current_user
+    product = Product.query.get(pid)
+
+    # to raczej nigdy nie powinno się stać, ale warto o to zadbać
+    if product is None:
+        return abort(500)
+
+    try:
+        comment_text = read_form('comment')
+        rate = read_form('rate', cast=int)
+
+        if rate not in Comment.RATE_ALLOWED_VALUES:
+            raise ValueError()
+        if comment_text == '' or len(comment_text) <= 0:
+            raise ValueError()
+
+        comment = Comment(product.id, user.id, rate, comment_text)
+        app.db.session.add(comment)
+        app.db.session.commit()
+
+        flash('Dodano komentarz')
+    except ValueError:
+        flash('Dodawanie komentarza nieudane!')
+
+    return redirect(url_for('productview', **{'pid': pid}))
+
