@@ -60,4 +60,32 @@ var addProductForm = {
         console.log(form.serialize());
     },
 };
+
+var addCommentForm = {
+    _stars: '#stars-comment-form',
+    _inputRate: '#comment-form input[name=rate]',
+    _inputComment: '#comment-form table tr td textarea[name=comment]',
+    _activeColor: '#DBF723',
+    _inactiveColor: 'black',
     
+    clickStar: function(value) {
+        var stars = $(this._stars).children();
+        var input = $(this._inputRate).attr('value', value);        
+
+        for (var i = 0; i < stars.length; i++) {
+            if (i < value) stars[i].style.color = this._activeColor;
+            else stars[i].style.color = this._inactiveColor;
+        }
+    },
+    
+    clear: function() {
+        var stars = $(this._stars).children();
+        $(this._inputRate).attr('value', 0);
+        $(this._inputComment).val('');
+                
+        for (var i = 0; i < stars.length; i++) {
+            stars[i].style.color = this._inactiveColor;
+        }
+    },
+};
+

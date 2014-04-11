@@ -132,18 +132,35 @@ def detailsview(oid):
 #define error!!!
 @app.route('/products/<int:pid>/')
 def productview(pid):
-    from absklep.models import Product, Comment, Customer, Property
+    def is_allowed_to_comment(user, product):
+        # niezalogowany nie może komentować
+        if not user.is_authenticated():
+            return False
 
-    args = {"lorem": Markup(markdown(lorem, output='html5')), "random": randint(0, 0xFFFFFFFF),"logform": absklep.forms.Login()}
+        product_ordered = product.id in (p.id for order in user.orders for p in order.products)
+        already_commented = product.id in (c.product_id for c in user.comments)
+
+        return product_ordered and not already_commented
+
+    from flask import abort, g
+    from .models import Product, Comment, Customer, Property
+
+    args = {
+        "lorem": Markup(markdown(lorem, output='html5')),
+        "random": randint(0, 0xFFFFFFFF),
+        "logform": absklep.forms.Login(),
+    }
 
     product = Product.query.get(pid)
-    if product is None: return 'error'
+    if product is None:
+        abort(500)
 
     comments = list(Comment.query.filter_by(product_id=pid))
     for c in comments: c.customer_id = Customer.query.get(c.customer_id).email
 
     properties = Property.query.filter(Product.properties.any(id=pid)).all()
 
+    args['allow_comment'] = is_allowed_to_comment(g.current_user, product)
     args['product'] = product
     args['comments'] = comments
     args['properties'] = properties
@@ -152,30 +169,12 @@ def productview(pid):
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
 def add_product_view():
-    def read_form(name, allow_none=False, cast=None):
-        '''
-        Odczytuje dane o zadanym kluczu 'name' z otrzymanego formularza. Jesli 'allow_none' jest równe False i wartosc
-        odczytana z formularza bedzie None to wyrzuci wyjatek ValueError. Argument 'cast' powinien byc funkcja przyjmujaca
-        jeden argument i zwracajaca wynik. Zostanie jej podana odczytana wartość.
-        '''
-
-        from flask import request
-
-        tmp = request.form[name]
-
-        if tmp is None and not allow_none:
-            raise ValueError('None not allowed')
-
-        if cast is None:
-            return tmp
-        else:
-            return cast(tmp)
-
     def get_properties_names(length):
         for i in range(length):
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
 
     from flask import request
+    from .util import read_form
 
     if request.method == 'POST':
         from .models import Product, Property
@@ -315,3 +314,37 @@ def cartview():
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login(),
                            cart=cart)
+
+@app.route('/products/<int:pid>/comments/new', methods=['POST'])
+@login_required
+def new_comment_product(pid):
+    from flask import g, abort
+
+    from .models import Comment, Product
+    from .util import read_form
+
+    user = g.current_user
+    product = Product.query.get(pid)
+
+    # to raczej nigdy nie powinno się stać, ale warto o to zadbać
+    if product is None:
+        return abort(500)
+
+    try:
+        comment_text = read_form('comment')
+        rate = read_form('rate', cast=int)
+
+        if rate not in Comment.RATE_ALLOWED_VALUES:
+            raise ValueError()
+        if comment_text == '' or len(comment_text) <= 0:
+            raise ValueError()
+
+        comment = Comment(product.id, user.id, rate, comment_text)
+        app.db.session.add(comment)
+        app.db.session.commit()
+
+        flash('Dodano komentarz')
+    except ValueError:
+        flash('Dodawanie komentarza nieudane!')
+
+    return redirect(url_for('productview', **{'pid': pid}))
