@@ -19,11 +19,12 @@ product_customer_assignment = db.Table(
     db.Column('customer_id', db.Integer, db.ForeignKey('Customers.id'))
 )
 
-product_order_assignment = db.Table(
-    'ProductOrder',
-    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
-    db.Column('order_id', db.Integer, db.ForeignKey('Orders.id'))
-)
+#product_order_assignment = db.Table(
+#    'ProductOrder',
+#    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
+#    db.Column('order_id', db.Integer, db.ForeignKey('Orders.id')),
+#    db.Column('amount', db.Integer, default=1)
+#)
 
 product_archival_assignment = db.Table(
     'ProductArchival',
@@ -150,6 +151,45 @@ class Employee(db.Model):
     orders = db.relationship('Order', backref=db.backref('employee'))
     archivals = db.relationship('Archival', backref=db.backref('employee'))
 
+    @staticmethod
+    def hash(pwd):
+        return sha256(pwd).hexdigest()
+
+    @staticmethod
+    def generate_salt(length=PASSWORD_LENGTH):
+        return urandom(length)
+
+    @staticmethod
+    def combine(salt, pwd):
+        return salt + pwd.encode(encoding='UTF-8')
+        
+    def verify_password(self, pwd):
+        return self.password == Employee.hash(Employee.combine(bytes.fromhex(self.salt),pwd))
+
+    def __init__(self, firstname, surname, email, password, pesel, salt=None):
+        if salt is None:
+            salt = Employee.generate_salt()
+        self.email, self.password, self.salt = email, Employee.hash(Employee.combine(salt, password)), ''.join(format(x, '02x') for x in salt)
+        self.firstname, self.surname, self.pesel = firstname, surname, pesel
+        
+        
+class ProductAmount(db.Model):
+
+    __tablename__ = 'ProductAmounts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('Orders.id'), nullable=False)
+    amount = db.Column(db.Integer, default=1)
+
+    product = db.relationship('Product')
+    
+    def __init__(self, amount=1):
+        self.amount = amount
+    
+    def set_product(self, product):
+        self.product = product
+        return self
 
 class Order(db.Model):
 
@@ -172,7 +212,8 @@ class Order(db.Model):
     city = db.Column(db.String(SHORT_TEXT), nullable=False)
     postal_code = db.Column(db.String(6), nullable=False)
 
-    products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
+#    products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
+    products_amount = db.relationship('ProductAmount', backref=db.backref('order'))
 
     def __init__(self, d=date.today()):
         self.date_ordered = d
@@ -183,6 +224,10 @@ class Order(db.Model):
         self.customer_id = customer
         return self
 
+    def set_employee(self, employee):
+        self.employee_id = employee
+        return self
+                
     def set_payment_method(self, mt):
         self.payment_method = mt
         return self
@@ -197,8 +242,11 @@ class Order(db.Model):
         self.price = price
         return self
 
-    def set_destination_name(self, name):
+    def set_firstname(self, name):
         self.firstname = name
+        return self
+
+    def set_surname(self, name):
         self.surname = name
         return self
 
@@ -222,10 +270,10 @@ class Order(db.Model):
         self.postal_code = code
         return self
 
-    def add_product(self, product):
-        if not isinstance(product, Product):
+    def add_product_amount(self, product_amount):
+        if not isinstance(product_amount, ProductAmount):
             raise TypeError("only products can be added to products list")
-        self.products.append(product)
+        self.products_amount.append(product_amount)
         return self
 
     def count_price(self, discount=None):
@@ -235,7 +283,7 @@ class Order(db.Model):
         """
         if discount is None:
             discount = 1.0
-        self.price = sum((p.unitPrice for p in self.products)) * discount
+        self.price = sum((p.amount * p.product.unit_price for p in self.products_amount)) * discount
         return self
 
     def done(self):

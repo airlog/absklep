@@ -38,7 +38,7 @@ def load_config(a, package=None):
 def load_database(a):
 	
     def some_data_for_tests():
-        from .models import Product, Property, Customer, Comment, Order
+        from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount
         from datetime import date
         
         a.db.session.add(Property('Kategoria','Ekrany'))
@@ -78,9 +78,10 @@ def load_database(a):
         # już skomentował
         a.db.session.add(
             Order()
-            .add_product(Product.query.get(1))
+            .add_product_amount(ProductAmount(1).set_product(Product.query.get(1)))
             .set_customer(1)
-            .set_destination_name('ABSklep')
+            .set_firstname('')
+            .set_surname('ABSklep')
             .set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])
             .set_status(Order.ENUM_STATUS_VALUES[0])
             .set_price(10000 * 100)
@@ -94,9 +95,10 @@ def load_database(a):
         a.db.session.add(Customer('sample@gmail.com', 'sample'))
         a.db.session.add(
             Order()
-            .add_product(Product.query.get(1))
+            .add_product_amount(ProductAmount(1).set_product(Product.query.get(1)))
             .set_customer(2)
-            .set_destination_name('ABSklep')
+            .set_firstname('')
+            .set_surname('ABSklep')
             .set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])
             .set_status(Order.ENUM_STATUS_VALUES[0])
             .set_price(10000 * 100)
@@ -106,7 +108,32 @@ def load_database(a):
         )
 
         a.db.session.commit()
+        
+        u1 = Customer('admin1@pl','123')
+        e1 = Employee('Marek','Marek','12345678901','marek@buziaczek.pl','123')
 
+        a.db.session.add(e1)
+        a.db.session.commit()
+
+        o1 = Order()
+        o1.set_employee(e1.id)
+        o1.set_status(Order.ENUM_STATUS_VALUES[0]).set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[0])        
+        o1.set_firstname('Ala').set_surname('Makota').set_address('ul. Ładna 1/2').set_city('Wrocław').set_postal_code('50-000')
+        o1.add_product_amount(ProductAmount(2).set_product(p1))
+        o1.add_product_amount(ProductAmount(1).set_product(p2))
+        o1.count_price()
+
+        o2 = Order()
+        o2.set_employee(e1.id)
+        o2.set_status(Order.ENUM_STATUS_VALUES[1]).set_payment_method(Order.ENUM_PAYMENT_METHODS_VALUES[1])        
+        o2.set_firstname('Ala').set_surname('Makota').set_address('ul. Ładna 1/2').set_city('Wrocław').set_postal_code('50-000')
+        o2.count_price()
+
+        u1.orders.append(o1)
+        u1.orders.append(o2)
+        a.db.session.add(u1)
+        a.db.session.commit()
+        
     a.db.drop_all()
     a.db.create_all()
     some_data_for_tests()

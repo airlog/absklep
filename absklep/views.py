@@ -114,20 +114,43 @@ def logout():
 def makeorderview():
     return render_template('address.html',
     	logform=absklep.forms.Login())
-    	
 
 @app.route('/orders/')
+@login_required
 def ordersview():
+    from flask import g
+    from .models import Order, Customer, Property
+    
+    if not g.current_user.is_authenticated():
+        flash('Nie jestes zalogowany!')
+        return redirect(url_for('index'))
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    orders = g.current_user.orders
     return render_template('orders.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login())
-
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           orders=orders)
 
 @app.route('/orders/show/<int:oid>/')
+@login_required
 def detailsview(oid):
+    from flask import g
+    from .models import Order, Property
+    
+    if not g.current_user.is_authenticated():
+        flash('Nie jestes zalogowany!')
+        return redirect(url_for('index'))
+    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
+#    print(orders[0].products_amount)
     return render_template('details.html',
-                           lorem=Markup(markdown(lorem, output='html5')))
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           categories=categories,
+                           order=orders[0])
 
 #define error!!!
 @app.route('/products/<int:pid>/')
@@ -137,7 +160,7 @@ def productview(pid):
         if not user.is_authenticated():
             return False
 
-        product_ordered = product.id in (p.id for order in user.orders for p in order.products)
+        product_ordered = product.id in (p.product.id for order in user.orders for p in order.products_amount)
         already_commented = product.id in (c.product_id for c in user.comments)
 
         return product_ordered and not already_commented
@@ -225,7 +248,6 @@ def add_product_view():
 
     return render_template('panel/add_product.html',
                            logform=absklep.forms.Login())
-
 
 @app.route('/products/<int:pid>/observe/')
 def observe_product(pid):
@@ -348,3 +370,4 @@ def new_comment_product(pid):
         flash('Dodawanie komentarza nieudane!')
 
     return redirect(url_for('productview', **{'pid': pid}))
+
