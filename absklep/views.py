@@ -300,41 +300,41 @@ def observedview():
                            user=current_user.email,
                            categories=categories)
 
-
-@app.route('/products/<int:pid>/add')
-def add2cart(pid):
-	
-    from flask import request, make_response
-	
-    resp = make_response(redirect(url_for('index')))
-    cart = request.cookies.get('cart','')
-    if str(pid) not in cart.split('.'):
-        resp.set_cookie('cart', cart+'.'+str(pid))
-	
-    flash('Produkt dodano do koszyka.')
-    return resp
-    
-@app.route('/products/<int:pid>/remove/')
-def removecart(pid):
-	
-    from flask import request, make_response
-	
-    resp = make_response(redirect(url_for('cartview')))
-    cart = request.cookies.get('cart','').split('.')
-    cart.remove(str(pid))
-    resp.set_cookie('cart','.'.join(cart))
-	
-    return resp
-
 @app.route('/cart/')
 def cartview():
-    
-    from flask import request
-    from absklep.models import Product, Property
-    
-    cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-        
+    def load_cart_cookie(cookie_name='cart'):
+        '''
+        Próbuje parsować zawartość koszyka, który powinień być zakodowanym w JSON słownikiem. Kluczem
+        w takim słowniku jest klucz główny (id) produktu, a wartością ilość tego produktu.
+        '''
+        import json
+        from flask import request
+        from absklep.models import Product
+
+        jsonCart = request.cookies.get(cookie_name)
+        if jsonCart is None or jsonCart == '':
+            return {}
+
+        obj = json.loads(jsonCart)
+        if not isinstance(obj, dict):
+            return {}
+
+        cart = {}
+        for key, value in obj.items():
+            try:
+                product = Product.query.get(int(key))
+            except ValueError:
+                continue
+
+            if product is None:
+                continue
+
+            cart[product] = value
+
+        return cart
+
+    cart = load_cart_cookie()
+
     return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
@@ -375,4 +375,3 @@ def new_comment_product(pid):
         flash('Dodawanie komentarza nieudane!')
 
     return redirect(url_for('productview', **{'pid': pid}))
-

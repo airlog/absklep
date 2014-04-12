@@ -6,7 +6,7 @@
 	<img class="pull-left" style="border: solid 2px #a0c5e4; margin: 0px 10px 10px 10px;" src="/static/images/nophoto.png" alt="brak zdjecia" width="250" height="250"/>
 	<div class="pull-right" >
 		<a href="./observe/" class="btn btn-default btn-lg">Obserwuj</a>
-		<button class="btn btn-primary btn-lg">Kup</button>
+		<a onclick="cart.add({{ product.id }})"><button class="btn btn-primary btn-lg">Kup</button></a>
 	</div>
 	<p>Cena: {{ "{0:.2f}".format(product.unit_price/100.0) }} PLN</p>
 	<p>Ocena klientów:
