@@ -1,0 +1,10 @@
+{% extends 'index.html' %}
+
+{% block menuRight %}
+<li>{{ g.current_user.firstname }} {{ g.current_user.surname }}</li>
+<li><a href="/auth/signout/">Wyloguj</a></li>
+{% endblock %}
+
+{% block page %}
+Panel
+{% endblock %}
