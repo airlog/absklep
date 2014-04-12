@@ -89,3 +89,28 @@ var addCommentForm = {
     },
 };
 
+var cartView = (function() {
+    var recount = function() {
+	    var elements = document.getElementsByName("product");
+		var sum = 0;
+
+		for (var i=0; i<elements.length; i++) {
+            var pid = elements[i].children[0].value;
+            var p = elements[i].children[2].innerHTML;
+            var x = elements[i].children[3].children[0].value;
+
+            console.log(pid);
+            elements[i].children[4].innerHTML = x * parseFloat(p) + " PLN";
+            sum += x * parseFloat(p);
+
+			// uaktualnij koszyk
+			cart.update(pid, x);
+		}
+
+	    document.getElementById("Sum").innerHTML = sum + " PLN";
+    }
+
+    return {
+        recount: recount,
+    };
+})();
