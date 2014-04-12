@@ -17,9 +17,9 @@
                 <tbody>
                     {% for o in orders %}
                     <tr>
-                        <td style="vertical-align: middle;">{{o.id}}</td>
-                        <td style="vertical-align: middle;">{{o.date_ordered}}</td>
-                        <td style="vertical-align: middle;">{{o.price/100.0}} PLN</td>
+                        <td style="vertical-align: middle;">{{o.id }}</td>
+                        <td style="vertical-align: middle;">{{ o.date_ordered }}</td>
+                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(o.price/100.0) }} PLN</td>
                         {% if o.status == o.ENUM_STATUS_VALUES[0] %}
                             <td style="vertical-align: middle;"><span class="btn btn-xs btn-info">{{o.status}}</span></td>
                         {% elif o.status == o.ENUM_STATUS_VALUES[1] %}

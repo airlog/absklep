@@ -26,16 +26,17 @@ def index():
     	return sum(rates)/len(rates) if len(rates) > 0 else 0
     
     categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    products_best = sorted(Product.query.all(), key=product_rate)[:4]
-    products_last = Product.query.order_by(Product.date_added.desc())[:4]
+    products_best = Product.query.all()
+    products_best.sort(key=lambda p: product_rate(p), reverse=True)
+    products_last = Product.query.order_by(Product.date_added.desc())
 
     return render_template('index.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login(),
                            categories=categories,
-                           products_best=products_best,
-                           products_last=products_last)
+                           products_best=products_best[0:4],
+                           products_last=products_last[0:4])
 
 @app.route('/products/category/<int:cid>/')
 def categoryview(cid):
@@ -181,14 +182,16 @@ def productview(pid):
     comments = list(Comment.query.filter_by(product_id=pid))
     for c in comments: c.customer_id = Customer.query.get(c.customer_id).email
 
-    properties = Property.query.filter(Product.properties.any(id=pid)).all()
-
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+    properties = list(filter(lambda prop: prop.key !='Kategoria', product.properties))
+    properties.sort(key=lambda prop: prop.key)
+    
     args['allow_comment'] = is_allowed_to_comment(g.current_user, product)
     args['product'] = product
     args['comments'] = comments
     args['properties'] = properties
     args['rate'] = sum([ c.rate for c in comments ])//len(comments) if len(comments) > 0 else 0
-    return render_template('product.html', **args)
+    return render_template('product.html', categories=categories, **args)
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
 def add_product_view():
@@ -327,15 +330,17 @@ def removecart(pid):
 def cartview():
     
     from flask import request
-    from absklep.models import Product
+    from absklep.models import Product, Property
     
     cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
-    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+        
     return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login(),
-                           cart=cart)
+                           cart=cart,
+                           categories=categories)
 
 @app.route('/products/<int:pid>/comments/new', methods=['POST'])
 @login_required

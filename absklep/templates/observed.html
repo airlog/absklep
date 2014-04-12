@@ -20,7 +20,7 @@
 							<a href="../products/{{ product.id }}">{{ product.name }}</a>
 						</td>
                         <td class="text-center">
-							{{ product.unit_price }} PLN
+							{{ "{0:.2f}".format(product.unit_price/100) }} PLN
 						</td>
 						{% if product.units_in_stock > 0 %}
 						<td class="text-center">

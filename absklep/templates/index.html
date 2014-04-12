@@ -41,7 +41,6 @@
         <div id="menu-left" class="pull-left">
             <ul class="list-inline">
                 <li><a href="/products/">Produkty</a></li>
-                <li><a href="/orders/">Historia zamówień</a></li>
                 <li><a href="/about/">O firmie</a></li>
             </ul>
         </div>
@@ -49,7 +48,10 @@
             <ul class="list-inline">
                 {% block menuRight %}
 					{% if g.current_user.is_authenticated() %}
-					    <li>{{ g.current_user.email }}</li><li><a href="/cart/">Koszyk</a></li><li><a href="/auth/signout/">Wyloguj</a></li>
+					    <li>{{ g.current_user.email }}</li><li><a href="/cart/">Koszyk</a></li>
+                        <li><a href="/observed/">Obserwowane</a></li>
+                        <li><a href="/orders/">Historia zamówień</a></li>
+					    <li><a href="/auth/signout/">Wyloguj</a></li>
 					{% else %}
                         <li><a href="/cart/">Koszyk</a></li><li><a onclick="loginForm.show()">Logowanie</a></li>
                     {% endif %}
@@ -101,7 +103,7 @@
                                 {{ p.description }}
                             </div>
                             <div class="text-right">
-                                <span style="margin-right: 5px;">{{ p.unit_price }} PLN</span>
+                                <span style="margin-right: 5px;">{{ "{0:.2f}".format(p.unit_price/100.0) }} PLN</span>
                                 <a href="/products/{{ p.id }}/"><button class="btn btn-default">Zobacz</button></a>
                                 <a href="/products/{{ p.id }}/add" class="btn btn-primary">Do koszyka</a>
                             </div>
@@ -126,7 +128,7 @@
                                 {{ p.description }}
                             </div>
                             <div class="text-right">
-                                <span style="margin-right: 5px;">{{ p.unit_price }} PLN</span>
+                                <span style="margin-right: 5px;">{{ "{0:.2f}".format(p.unit_price/100.0) }} PLN</span>
                                 <a href="/products/{{ p.id }}/"><button class="btn btn-default">Zobacz</button></a>
                                 <button type="submit" class="btn btn-primary" onclick="">Do koszyka</button>
                             </div>

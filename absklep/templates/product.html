@@ -8,12 +8,19 @@
 		<a href="./observe/" class="btn btn-default btn-lg">Obserwuj</a>
 		<button class="btn btn-primary btn-lg">Kup</button>
 	</div>
-	<p>Cena: {{ product.unit_price }} PLN</p>
+	<p>Cena: {{ "{0:.2f}".format(product.unit_price/100.0) }} PLN</p>
 	<p>Ocena klientów:
 			{% for i in range(rate) %}
 				<img class="star" src="/static/images/star.png"/>
 			{% endfor %}
 	</p>
+	<p>Dostępność: 
+        {% if product.units_in_stock > 0%}
+			<td style="vertical-align: middle;"><span class="btn btn-xs btn-success">dostępny</span></td>
+	    {% else %}
+	        <td style="vertical-align: middle;"><span class="btn btn-xs btn-danger">niedostępny</span></td>
+		{% endif %}
+    </p>
 	<div class="opis">	
 	{{ product.description }}
 	</div>

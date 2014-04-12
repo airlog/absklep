@@ -19,7 +19,7 @@
                     <tr>
                         <td style="vertical-align: middle;">{{ p.name }}</td>
                         <td style="vertical-align: middle; font-style: italic;">{{ p.description }}</td>
-                        <td style="vertical-align: middle;">{{ p.unit_price }} PLN</td>
+                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(p.unit_price/100.0) }} PLN</td>
                         {% if p.units_in_stock > 0%}
 							<td style="vertical-align: middle;"><span class="btn btn-xs btn-success">dostępny</span></td>
 						{% else %}
