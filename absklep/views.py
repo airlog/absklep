@@ -330,15 +330,17 @@ def removecart(pid):
 def cartview():
     
     from flask import request
-    from absklep.models import Product
+    from absklep.models import Product, Property
     
     cart = list(map(lambda x: Product.query.get(int(x)), request.cookies.get('cart','').split('.')[1:]))
-    
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
+        
     return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),
                            random=randint(0, 0xFFFFFFFF),
                            logform=absklep.forms.Login(),
-                           cart=cart)
+                           cart=cart,
+                           categories=categories)
 
 @app.route('/products/<int:pid>/comments/new', methods=['POST'])
 @login_required
