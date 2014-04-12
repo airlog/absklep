@@ -18,7 +18,7 @@
 				</tr>
 				<tr>
 					<th>Status</th>
-					<td><span class="btn btn-xs btn-info">{{order.status}}</span></td>
+					<td>{{order.status}}</td>
 				</tr>
 				<tr>
 					<th>Sposób odbioru</th>
@@ -55,14 +55,14 @@
                     {% for pa in order.products_amount %}
                     <tr>
                         <td>{{ pa.product.name }}</td>
-                        <td>{{ pa.product.unit_price/100.0 }} PLN</td>
+                        <td>{{ "{0:.2f}".format(pa.product.unit_price/100.0) }} PLN</td>
                         <td>&times; {{ pa.amount }}</td>
-                        <td>{{ (pa.amount * pa.product.unit_price)/100.0 }} PLN</td>
+                        <td>{{ "{0:.2f}".format((pa.amount * pa.product.unit_price)/100.0) }} PLN</td>
                     </tr>
                     {% endfor %}
                     <tr>
                         <td class="text-right" colspan="3"><b>Suma</b></td>
-                        <td><span>{{ order.price/100.00 }} PLN</span></td>
+                        <td><span>{{ "{0:.2f}".format(order.price/100.00) }} PLN</span></td>
                         <td></td>
                     </tr>
                 </tbody>

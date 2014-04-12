@@ -43,7 +43,9 @@ def load_database(a):
         
         a.db.session.add(Property('Kategoria','Ekrany'))
         a.db.session.add(Property('Kategoria','Myszki'))
-        a.db.session.add(Property('Producent','Lenovo'))
+        prop1 = Property('Producent','Lenovo')
+        prop2 = Property('Dysk','300 GB')
+        prop3 = Property('Ekran','15\'\'')
         a.db.session.add(Property('Kategoria','Baterie'))
         a.db.session.add(Property('Producent','Asus'))
         
@@ -61,6 +63,10 @@ def load_database(a):
         
         p1.properties.append(c1)
         p2.properties.append(c1)
+        p1.properties.append(prop1)
+        p1.properties.append(prop2)
+        p1.properties.append(prop3)
+
         p3.properties.append(c2)
         p4.properties.append(c2)
 
