@@ -26,11 +26,6 @@ var registerForm = {
     },
 };
 
-function createGui() {
-    $("#fullscreen-dim").hide();
-    $("#login-form").hide();
-}
-
 var addProductForm = {
     _addedPropertiesCount: 0,
 
@@ -90,6 +85,27 @@ var addCommentForm = {
 };
 
 var cartView = (function() {
+    var dialog = {
+        show: function() {
+            $("#fullscreen-dim").show();
+            $("#added-to-cart-dialog").show();
+
+            var that = this;
+            $(document).keyup(function(e) {
+                console.log("escape pressed");
+                if (e.keyCode == 27) {  // esc key
+                    that.hide();
+                }
+            });
+        },
+
+        hide: function() {
+            $("#fullscreen-dim").hide();
+            $("#added-to-cart-dialog").hide();
+            $(document).unbind("keyup");
+        },
+    };
+
     var recount = function() {
 	    var elements = document.getElementsByName("product");
 		var sum = 0;
@@ -99,18 +115,49 @@ var cartView = (function() {
             var p = elements[i].children[2].innerHTML;
             var x = elements[i].children[3].children[0].value;
 
-            console.log(pid);
             elements[i].children[4].innerHTML = x * parseFloat(p) + " PLN";
             sum += x * parseFloat(p);
 
 			// uaktualnij koszyk
 			cart.update(pid, x);
+			
+			// jeśli 0, usuń z koszyka
+			if (x == 0) {
+			    cart.remove(pid);
+			    $(elements[i]).remove();
+			}
 		}
 
-	    document.getElementById("Sum").innerHTML = sum + " PLN";
+	    document.getElementById("Sum").innerHTML = sum.toFixed(2) + " PLN";
     }
+    
+    /**
+     * Usuwa dany wiersz z tabeli.
+     * 
+     * Jeśli podany argument jest null to usuwa wszystkie wiersze z
+     * tabeli. Uwaga, zmiana zagnieżdżenia elementów wymaga przerobienia tej metody.
+     */
+    var clear = function(ele) {
+        if (ele == null) {
+            $("tr[name=product]").remove();
+            cart.clear();
+            this.recount();
+        } else {
+            $(ele).parent().parent().remove();
+            this.recount();
+        }
+    };
 
     return {
         recount: recount,
+        dialog: dialog,
+        clear: clear,
     };
 })();
+
+function createGui() {
+    $("#fullscreen-dim").hide();
+    $("#login-form").hide();
+    $('#added-to-cart-dialog').hide();
+}
+
