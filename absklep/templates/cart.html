@@ -22,11 +22,11 @@
                         <tr name="product">
                             <input type="hidden" name="productid" value="{{ product.id }}"/>
                             <td>{{ product.name }}</td>
-                            <td>{{ product.unit_price }} PLN</td>
+                            <td>{{ "{0:.2f}".format(product.unit_price/100.0) }} PLN</td>
                             <td>x<input type="number" pattern="\d+" style="width: 20%; margin-left: 5px;" value="{{ amount }}" /></td>
                             <td></td>
                             <td>
-                                <a type="button" class="close" aria-hidden="true" href="/products/{{ product.id }}/remove/">&times;</a>
+                                <a type="button" class="close" aria-hidden="true" onclick="cart.remove({{ product.id }}); cartView.clear(this);">&times;</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -38,7 +38,7 @@
                 </tbody>
             </table>
             <div class="text-right">
-                <button type="button" class="btn btn-default">Wyczyść</button>
+                <button type="button" class="btn btn-default" onclick="cartView.clear()">Wyczyść</button>
                 <button type="button" class="btn btn-default" onclick="cartView.recount()">Przelicz</button>
                 <a href="/orders/new"><button type="button" class="btn btn-primary">Zamawiam</button></a>
             </div>

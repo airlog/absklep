@@ -309,7 +309,7 @@ def cartview():
         '''
         import json
         from flask import request
-        from absklep.models import Product
+        from .models import Product
 
         jsonCart = request.cookies.get(cookie_name)
         if jsonCart is None or jsonCart == '':
@@ -332,8 +332,11 @@ def cartview():
             cart[product] = value
 
         return cart
+    
+    from .models import Property
 
     cart = load_cart_cookie()
+    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
 
     return render_template('cart.html',
                            lorem=Markup(markdown(lorem, output='html5')),

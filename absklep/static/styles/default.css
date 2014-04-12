@@ -56,7 +56,7 @@ body {
     height: 100%;
 }
 
-#login-form {
+#login-form, #added-to-cart-dialog {
     display: none;
     position: fixed;
     margin-left: 25%;
@@ -73,6 +73,10 @@ body {
 
 #login-form form .margined, #register-form form .margined {
     margin: 10px;
+}
+
+#added-to-cart-dialog .text {
+    padding: 10px;
 }
 
 #top {}
