@@ -418,10 +418,40 @@ def emplogin():
     return render_template('panel/login.html',
                             emplogin=emplogin)
 
-@app.route('/panel/modify/')
+@app.route('/panel/modify/', methods=['GET', 'POST'])
 def modify_product():
-	return render_template('panel/modify.html', logform=absklep.forms.Login())
-	
+    from flask import g, abort, request
+
+    from .models import Product, Property, product_property_assignment
+    from .util import read_form
+    
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
+    
+    if request.method == 'POST':
+        try: 
+            pid = int(read_form('pid'))
+            product = Product.query.get(pid)
+            return 'pid'
+        except: pass
+        
+        try: cnt = int(read_form('count'))
+        except: return render_template('panel/modify.html', logform=absklep.forms.Login())
+        
+        name = read_form('name')
+        products = Product.query.filter(Product.name.like("%"+name+"%"))
+        
+        for i in range(1, cnt+1):
+            k, v = read_form('param%d'% i ), read_form('val%d'% i )
+            if k != '' and v != '':
+                products = products.filter(Product.properties.any(key=k, value=v))
+            
+        return render_template('panel/choosemodify.html', logform=absklep.forms.Login(), products=products.all())
+        		
+    return render_template('panel/modify.html', logform=absklep.forms.Login())
+
+@app.route('/panel/modify/<int:pid>/')
+def modify_product_detail(pid):
+    return str(pid)
 
 @app.route('/panel/orders/')
 @login_required

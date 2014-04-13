@@ -151,7 +151,7 @@ class Employee(db.Model, UserMixin):
     surname = db.Column(db.String(SHORT_TEXT), nullable=False)
     email = db.Column(db.String(SHORT_TEXT), unique=True, nullable=False)
     password = db.Column(db.String(PASSWORD_LENGTH), nullable=False)
-    salt = db.Column(db.String(PASSWORD_LENGTH), nullable=False)
+    salt = db.Column(db.String(2*PASSWORD_LENGTH), nullable=False)
     pesel = db.Column(db.String(11), unique=True, nullable=False)
 
     orders = db.relationship('Order', backref=db.backref('employee'))

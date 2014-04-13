@@ -1,0 +1,32 @@
+{% extends 'panel/panel.html' %}
+
+{% block loginForm %}
+{% endblock %}
+
+{% block pageMiddle %}
+<div>
+	 <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Zmiana danych produktu i usuwanie</h3>
+     </div>
+     <div class="product-group">
+		 <div class="frame-title">Znalezione produkty</div>
+		 <table class="table">
+			 <thead><th>Nazwa produktu</th><th>Identyfikator</th><th>Cena</th><th>Ilość na stanie</th><th>Opis</th><th>Parametry</th>
+			 </thead>
+			 <tbody>
+			 {% for p in products %}
+				<tr>
+					<td>{{ p.name }}</td>
+					<td>{{ p.id }}</td>
+					<td>{{ p.unit_price }}</td>
+					<td>{{ p.units_in_stock }}</td>
+					<td>{{ p.description }}</td>
+					<td>{% for x in p.properties %}<b>{{ x.key }}</b>: {{ x.value }}<br>{% endfor %}</td>
+					<td><a class="btn btn-default" href="{{ p.id }}/" style="width: 80px;">Wybierz</a> </td>
+				</tr>
+			 {% endfor %}
+			 </tbody>
+		</table>
+     </div>
+</div>
+{% endblock %}

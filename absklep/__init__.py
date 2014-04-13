@@ -141,6 +141,8 @@ def load_database(a):
         a.db.session.commit()
         
     a.db.drop_all()
+    #a.db.engine.execute('drop schema public cascade; create schema public;')
+    
     a.db.create_all()
     some_data_for_tests()
 
