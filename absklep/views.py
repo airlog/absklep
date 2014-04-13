@@ -446,10 +446,63 @@ def modify_product():
                 products = products.filter(Product.properties.any(key=k, value=v))
             
         return render_template('panel/choosemodify.html', logform=absklep.forms.Login(), products=products.all())
-        
-		
+        		
     return render_template('panel/modify.html', logform=absklep.forms.Login())
 
 @app.route('/panel/modify/<int:pid>/')
 def modify_product_detail(pid):
     return str(pid)
+
+@app.route('/panel/orders/')
+@login_required
+def panel_ordersview():
+
+    from flask import g, request
+    from .models import Employee
+   		
+    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
+        flash('Musisz się zalogować, żeby zobaczyć zamówienia')
+        return redirect(url_for('index'))
+   
+    orders = g.current_user.orders
+    return render_template('panel/orders.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           orders = orders
+                           )
+
+@app.route('/panel/orders/show/<int:oid>/', methods=['GET', 'POST'])
+@login_required
+def panel_detailsview(oid):
+    from flask import request, g
+    from .util import read_form
+    
+    from .models import Order, Property
+    
+    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
+        flash('Musisz się zalogować')
+        return redirect(url_for('index'))
+
+    orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
+    if orders == []:
+        flash('Zamówienie o podanym id nie istnieje')
+        return redirect(url_for('panel_ordersview'))
+    
+    if request.method == 'POST':
+        try:
+            status = read_form('status')
+            
+            orders[0].set_status(status)
+            app.db.session.commit()
+
+            flash("Zmieniono status")
+        except ValueError:
+            flash('Wystąpił błąd podczas zmiany statusu')
+
+        return redirect(url_for('panel_detailsview', **{'oid': oid}))
+
+    return render_template('panel/details.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           order=orders[0])
+

@@ -22,15 +22,14 @@ product_customer_assignment = db.Table(
 #product_order_assignment = db.Table(
 #    'ProductOrder',
 #    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
-#    db.Column('order_id', db.Integer, db.ForeignKey('Orders.id')),
-#    db.Column('amount', db.Integer, default=1)
+#    db.Column('order_id', db.Integer, db.ForeignKey('Orders.id'))
 #)
 
-product_archival_assignment = db.Table(
-    'ProductArchival',
-    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
-    db.Column('archival_id', db.Integer, db.ForeignKey('Archivals.id'))
-)
+#product_archival_assignment = db.Table(
+#    'ProductArchival',
+#    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
+#    db.Column('archival_id', db.Integer, db.ForeignKey('Archivals.id'))
+#)
 
 product_property_assignment = db.Table(
     'ProductProperty',
@@ -48,15 +47,19 @@ class Product(db.Model):
     unit_price = db.Column(db.Integer, nullable=False)
     units_in_stock = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(LONG_TEXT))
-    date_added = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    date_added = db.Column(db.DateTime, nullable=False)
 
     comments = db.relationship('Comment', backref=db.backref('product'))
     properties = db.relationship('Property', backref=db.backref('products'), secondary=product_property_assignment)
 
-    def __init__(self, name, price, instock=0, description=None):
+    def __init__(self, name, price, instock=0, description=None, date=None):
         if price < 0.0 or instock < 0:
             raise ValueError("invalid value")
         self.name, self.unit_price, self.units_in_stock, self.description = name, price, instock, description
+        if date is None:
+            date = datetime.now()
+        self.date_added = date
+        print(date)
 
 
 class Comment(db.Model):
@@ -186,7 +189,7 @@ class ProductAmount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
     order_id = db.Column(db.Integer, db.ForeignKey('Orders.id'), nullable=False)
-    amount = db.Column(db.Integer, default=1)
+    amount = db.Column(db.Integer, nullable=False)
 
     product = db.relationship('Product')
     
@@ -196,6 +199,7 @@ class ProductAmount(db.Model):
     def set_product(self, product):
         self.product = product
         return self
+        
 
 class Order(db.Model):
 
@@ -296,6 +300,26 @@ class Order(db.Model):
         pass
 
 
+
+class ProductArchivalAmount(db.Model):
+
+    __tablename__ = 'ProductArchivalAmounts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
+    archival_id = db.Column(db.Integer, db.ForeignKey('Archivals.id'), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
+
+    product = db.relationship('Product')
+    
+    def __init__(self, amount=1):
+        self.amount = amount
+    
+    def set_product(self, product):
+        self.product = product
+        return self
+
+
 class Archival(db.Model):
 
     __tablename__ = 'Archivals'
@@ -316,5 +340,6 @@ class Archival(db.Model):
     city = db.Column(db.String(SHORT_TEXT), nullable=False)
     postal_code = db.Column(db.String(6), nullable=False)
 
-    products = db.relationship('Product', backref=db.backref('archivals'), secondary=product_archival_assignment)
-
+#    products = db.relationship('Product', backref=db.backref('archivals'), secondary=product_archival_assignment)
+    products_amount = db.relationship('ProductArchivalAmount', backref=db.backref('archival'))
+    
