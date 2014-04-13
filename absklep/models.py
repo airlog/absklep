@@ -135,6 +135,14 @@ class Property(db.Model):
             .filter(Property.key == key, Property.value == value)\
             .first()
 
+    @staticmethod
+    def get_categories():
+        return Property\
+            .query\
+            .filter(Property.key == Property.KEY_CATEGORY)\
+            .order_by(Property.value)\
+            .all()
+
     def __init__(self, key, value):
         self.key, self.value = str(key), str(value)
 
