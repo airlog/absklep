@@ -9,5 +9,65 @@
             <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Zmiana danych produktu i usuwanie</h3>
         </div>
         
+        <div>
+        <form id="modiy-form" class="form-horizontal" role="form" action="" method="POST">
+			<input type="hidden" name="count" id="count" value="1">
+			<table class="form-table" style="width: 100%;">
+				<tbody id="mtable">
+				<tr>
+					<td><input type="submit" class="btn btn-default" value="Wyszukaj produkt"></td>
+				</tr>
+				<tr><td colspan="3"><div class="fullscreen-border" style="height:30px;"><h4 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Parametry wyszukiwania</h4>
+					</div></td>
+				</tr>
+				<tr>
+					<td colspan="3">Podaj identyfikator produktu (lub pozostaw puste)</td>
+				</tr>
+				<tr>
+					<td colspan="3"><input type="text" class="form-control" name="pid" placeholder="Id" ></td>
+				</tr>
+				<tr>
+					<td colspan="3">Podaj ciąg, który ma wystąpić w nazwie produktu</td>
+				</tr>
+				<tr>
+					<td colspan="3"><input type="text" class="form-control" name="name" placeholder="Nazwa" ></td>
+				</tr>
+				<tr>
+					<td colspan="3">Podaj parametry szukanego produktu</td>
+				</tr>
+				<tr>
+					<td colspan="1"><input type="text" class="form-control" name="param1" placeholder="Parametr" ></input></td>
+					<td colspan="2"><input type="text" class="form-control" name="val1" placeholder="Wartość" ></input></td>
+				</tr>
+				</tbody>
+			</table>
+		</form>
+				<div class="text-right">
+					<button class="btn btn-default" onclick="add_param()">Dodaj parametr</button>
+				</div>
+        </div>
     </div>
+    <script type='text/javascript'>
+		function add_param()
+		{
+			var param = document.createElement("input");
+			var val = document.createElement("input");
+			params = document.getElementById("count");
+			params.value = parseInt(params.value)+1;
+			param.name = "param"+params.value;
+			val.name = "val"+params.value;
+			param.type = "text"; param.placeholder="Parametr";
+			val.type = "text"; val.placeholder="Wartość";
+			param.setAttribute("class","form-control");
+			val.setAttribute("class","form-control");
+			
+			var row = document.createElement("tr");
+			var a = document.createElement("td"); a.setAttribute("colspan","1");
+			var b = document.createElement("td"); b.setAttribute("colspan","2");
+			
+			a.appendChild(param); b.appendChild(val); row.appendChild(a); row.appendChild(b);
+			document.getElementById("mtable").appendChild(row);
+			
+		}
+    </script>
 {% endblock %}
