@@ -49,8 +49,8 @@ class Product(db.Model):
     description = db.Column(db.String(LONG_TEXT))
     date_added = db.Column(db.DateTime, nullable=False)
 
-    comments = db.relationship('Comment', backref=db.backref('product'))
-    properties = db.relationship('Property', backref=db.backref('products'), secondary=product_property_assignment)
+    comments = db.relationship('Comment', cascade="all,delete", backref=db.backref('product'))
+    properties = db.relationship('Property', cascade="all,delete", backref=db.backref('products'), secondary=product_property_assignment)
 
     def __init__(self, name, price, instock=0, description=None, date=None):
         if price < 0.0 or instock < 0:
@@ -89,10 +89,10 @@ class Customer(UserMixin, db.Model):
     password = db.Column(db.String(PASSWORD_LENGTH), nullable=False)
     salt = db.Column(db.String(2*PASSWORD_LENGTH), nullable=False)
 
-    comments = db.relationship('Comment', backref=db.backref('customer'))
-    orders = db.relationship('Order', backref=db.backref('customer'))
-    archivals = db.relationship('Archival', backref=db.backref('customer'))
-    observed = db.relationship('Product', backref=db.backref('customers'), secondary=product_customer_assignment)
+    comments = db.relationship('Comment', cascade="all,delete", backref=db.backref('customer'))
+    orders = db.relationship('Order', cascade="all,delete", backref=db.backref('customer'))
+    archivals = db.relationship('Archival', cascade="all,delete", backref=db.backref('customer'))
+    observed = db.relationship('Product', cascade="all,delete", backref=db.backref('customers'), secondary=product_customer_assignment)
 
     @staticmethod
     def hash(pwd):
@@ -153,8 +153,8 @@ class Employee(db.Model, UserMixin):
     salt = db.Column(db.String(2*PASSWORD_LENGTH), nullable=False)
     pesel = db.Column(db.String(11), unique=True, nullable=False)
 
-    orders = db.relationship('Order', backref=db.backref('employee'))
-    archivals = db.relationship('Archival', backref=db.backref('employee'))
+    orders = db.relationship('Order', cascade="all,delete", backref=db.backref('employee'))
+    archivals = db.relationship('Archival', cascade="all,delete", backref=db.backref('employee'))
 
     @staticmethod
     def hash(pwd):
@@ -222,7 +222,7 @@ class Order(db.Model):
     postal_code = db.Column(db.String(6), nullable=False)
 
 #    products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
-    products_amount = db.relationship('ProductAmount', backref=db.backref('order'))
+    products_amount = db.relationship('ProductAmount', cascade="all,delete", backref=db.backref('order'))
 
     def __init__(self, d=date.today()):
         self.date_ordered = d
@@ -351,7 +351,7 @@ class Archival(db.Model):
     postal_code = db.Column(db.String(6), nullable=False)
 
 #    products = db.relationship('Product', backref=db.backref('archivals'), secondary=product_archival_assignment)
-    products_amount = db.relationship('ProductArchivalAmount', backref=db.backref('archival'))
+    products_amount = db.relationship('ProductArchivalAmount', cascade="all,delete", backref=db.backref('archival'))
     
     def __init__(self, date=None):
         if date is None:

@@ -431,7 +431,9 @@ def modify_product():
         try: 
             pid = int(read_form('pid'))
             product = Product.query.get(pid)
-            return 'pid'
+            if product is not None: return redirect(url_for('modify_product_detail', pid=pid))
+            flash('Produkt o podanym id nie istnieje')
+            return render_template('panel/modify.html', logform=absklep.forms.Login())
         except: pass
         
         try: cnt = int(read_form('count'))
@@ -449,9 +451,63 @@ def modify_product():
         		
     return render_template('panel/modify.html', logform=absklep.forms.Login())
 
-@app.route('/panel/modify/<int:pid>/')
+@app.route('/panel/modify/<int:pid>/', methods=['GET', 'POST'])
 def modify_product_detail(pid):
-    return str(pid)
+    from flask import g, request
+
+    from .models import Product, Property
+    from .util import read_form
+    
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
+    
+    product = Product.query.get(pid)
+    
+    if request.method == 'POST':
+        if read_form('attr') == 'n': product.name = read_form('nval')
+        elif read_form('attr') == 'p': product.unit_price = read_form('nval')
+        elif read_form('attr') == 'a': product.units_in_stock = read_form('nval')
+        elif read_form('attr') == 'd': product.description = read_form('nval')
+        elif read_form('attr') == 'r':
+            key, val = read_form('key'), read_form('nval')
+            
+            if read_form('mode')=='rm':
+                product.properties = [ x for x in product.properties if x.key != key ]
+            else:
+                p = Property.query.filter(Property.key==key, Property.value==val).first()
+                if p is None:
+                    flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
+                    render_template('panel/modify_details.html', product=product)
+                product.properties = [ x for x in product.properties if x.key != key ]
+                product.properties.append(p)
+        elif read_form('attr') == 'ap':
+            key, val = read_form('key'), read_form('nval')
+            
+            p = Property.query.filter(Property.key==key, Property.value==val).first()
+            if p is None:
+                flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
+                render_template('panel/modify_details.html', product=product)
+            product.properties.append(p)
+        flash('Produkt został zmieniony')
+        product = Product.query.get(pid)
+    
+    return render_template('panel/modify_details.html', product=product)
+
+@app.route('/panel/modify/<int:pid>/remove/')
+def remove_product(pid):
+    from flask import g
+    from .models import Product
+    
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
+    
+    #return Product.query.get(pid).name
+    app.db.session.delete(Product.query.get(pid))
+    app.db.session.commit()
+    flash('Produkt został usunięty')
+    return redirect(url_for('modify_product'))
+    
+    
+    
+
 
 @app.route('/panel/orders/')
 @login_required

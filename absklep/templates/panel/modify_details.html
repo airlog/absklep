@@ -1,0 +1,75 @@
+{% extends 'panel/panel.html' %}
+
+{% block loginForm %}
+{% endblock %}
+
+{% block pageMiddle %}
+<div>
+	<div class="fullscreen-border">
+        <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">{{ product.name }}</h3>
+    </div>
+		<a class="btn btn-default" href="remove/" style="font-size:18px; margin-left: auto; margin-right: auto; display: block; width:50%;">Usuń ten produkt</a>
+    <div>
+    </div>
+    <table class="table">
+		<tr><td colspan="3"><div class="frame-title">Nazwa</div></td></tr>
+		<tr><td colspan="3">
+			<form action="" method="POST" class="form-horizontal" role="form">
+				<input type="hidden" name="attr" value="n">
+				<input type="text" class="form-control" name="nval" value="{{ product.name }}">
+				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
+			</form>
+		</td></tr>
+		<tr><td colspan="3"><div class="frame-title">Cena</div></td></tr>
+		<tr><td colspan="3">
+			<form action="" method="POST" class="form-horizontal" role="form">
+				<input type="hidden" name="attr" value="p">
+				<input type="text" class="form-control" name="nval" value="{{ product.unit_price }}">
+				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
+			</form>
+		</td></tr>
+		<tr><td colspan="3"><div class="frame-title">Ilość na stanie</div></td></tr>
+		<tr><td colspan="3">
+			<form action="" method="POST" class="form-horizontal" role="form">
+				<input type="hidden" name="attr" value="a">
+				<input type="text" class="form-control" name="nval" value="{{ product.units_in_stock }}">
+				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
+			</form>
+		</td></tr>
+		<tr><td colspan="3"><div class="frame-title">Opis</div></td></tr>
+		<tr><td colspan="3">
+			<form action="" method="POST" class="form-horizontal" role="form">
+				<input type="hidden" name="attr" value="d">
+				<textarea rows="5" type="text" class="form-control" name="nval">{{ product.description }}</textarea>
+				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
+			</form>
+		</td></tr>
+		
+		<tr><td colspan="3"><div class="frame-title">Parametry</div></td></tr>
+		{% for p in product.properties %}
+		<tr><td colspan="3">
+			<form action="" method="POST" class="form-horizontal" role="form" id="form{{p.id}}">
+				<input type="hidden" name="attr" value="r">
+				<input type="hidden" id="m{{p.id}}" name="mode" value="ch">
+				<input type="hidden" name="key" value="{{p.key}}">
+				{{ p.key }}
+				<input type="text" class="form-control" name="nval" value="{{ p.value }}">
+				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
+				<button class="btn btn-default" onclick='document.getElementById("m{{p.id}}").value="rm"; document.getElementById("form{{p.id}}").submit();'>Usuń</button>
+			</form>
+		</td></tr>
+		{% endfor %}
+		<tr><td>
+			<form action="" method="POST" class="form-horizontal" role="form">
+				<input type="hidden" name="attr" value="ap">
+				<input type="text" class="form-control" name="key" placeholder="Parametr" style="width:200px; display:inline;">
+				<input type="text" class="form-control" name="nval" placeholder="Wartość" style="width:200px; display:inline;">
+				<input type="submit" class="btn btn-default" value="Dodaj" style="width:100px; display: inline;">
+			</form>
+		</td></tr>
+		
+		
+		
+    </table>
+</div>
+{% endblock %}
