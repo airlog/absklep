@@ -6,7 +6,7 @@ from flask.ext.login import current_user, login_required
 from jinja2 import Markup
 from markdown import markdown
 
-from .. import app, lorem
+from .. import app
 import absklep.forms
 
 #some communicates for now
@@ -228,7 +228,6 @@ def panel_ordersview():
    
     orders = g.current_user.orders
     return render_template('panel/orders.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            orders = orders
                            )
@@ -265,7 +264,6 @@ def panel_detailsview(oid):
         return redirect(url_for('panel_detailsview', **{'oid': oid}))
 
     return render_template('panel/details.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            order=orders[0])
 
@@ -283,7 +281,6 @@ def panel_archivalsview():
    
     archivals = g.current_user.archivals
     return render_template('panel/archivals.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            archivals = archivals
                            )
@@ -306,7 +303,6 @@ def panel_archival_detailsview(aid):
         return redirect(url_for('panel_archivalsview'))
         
     return render_template('panel/archival_details.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            order=archivals[0])
 
@@ -363,7 +359,6 @@ def panel_unassigned_orders_view():
     orders = list(filter( lambda o: o.employee_id == None, Order.query.all()))
     
     return render_template('panel/unassigned.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            orders = orders
                            )
@@ -385,7 +380,6 @@ def panel_unassigned_details_view(oid):
         return redirect(url_for('panel_unassigned_sview'))
 
     return render_template('panel/unassigned_details.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
                            logform=absklep.forms.Login(),
                            order = orders[0]
                            )

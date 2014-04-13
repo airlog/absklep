@@ -1,33 +1,32 @@
 
-from random import randint
-
-from flask import flash, redirect, render_template, url_for
+from flask import abort, flash, g, redirect, render_template, url_for
+from flask.ext.login import login_required
 
 from .. import app
-import absklep.forms
+from ..forms import Login
+from ..models import Product, Property, Comment
+from ..util import read_form
+
 
 @app.route('/')
 @app.route('/products/')
 def index():
-    from jinja2 import Markup
-    from markdown import markdown
-    from sqlalchemy import func
-    from ..models import Product, Property
-
     def product_rate(product):
-    	rates = [c.rate for c in product.comments]
-    	return sum(rates)/len(rates) if len(rates) > 0 else 0
+        rates = [c.rate for c in product.comments]
+        return sum(rates)/len(rates) if len(rates) > 0 else 0
 
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    products_best = Product.query.all()
+    products_best = Product\
+        .query\
+        .all()
     products_best.sort(key=lambda p: product_rate(p), reverse=True)
-    products_last = Product.query.order_by(Product.date_added.desc())
+    products_last = Product\
+        .query\
+        .order_by(Product.date_added.desc())\
+        .all()
 
     return render_template('index.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
+                           logform=Login(),
+                           categories=Property.get_categories(),
                            products_best=products_best[0:4],
                            products_last=products_last[0:4])
 
@@ -36,18 +35,20 @@ def index():
 def categoryview(cid):
     from ..models import Product, Property, product_property_assignment
 
-    products = Product.query\
+    products = Product\
+        .query\
         .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
         .filter(product_property_assignment.columns.property_id == cid)\
         .all()
 
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    category = Property.query.filter(Property.id == cid).first()
+    category = Property\
+        .query\
+        .filter(Property.id == cid)\
+        .first()
 
     return render_template('category.html',
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
+                           logform=Login(),
+                           categories=Property.get_categories(),
                            products=products,
                            category=category)
 
@@ -55,11 +56,6 @@ def categoryview(cid):
 @app.route('/products/<int:pid>/comments/new', methods=['POST'])
 @login_required
 def new_comment_product(pid):
-    from flask import g, abort
-
-    from ..models import Comment, Product
-    from ..util import read_form
-
     user = g.current_user
     product = Product.query.get(pid)
 
