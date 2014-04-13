@@ -38,8 +38,8 @@ def load_config(a, package=None):
 def load_database(a):
 	
     def some_data_for_tests():
-        from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount
-        from datetime import date
+        from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount, Archival
+        from datetime import date, datetime
         
         a.db.session.add(Property('Kategoria','Ekrany'))
         a.db.session.add(Property('Kategoria','Myszki'))
@@ -138,6 +138,14 @@ def load_database(a):
         u1.orders.append(o1)
         u1.orders.append(o2)
         a.db.session.add(u1)
+        a.db.session.commit()
+ 
+        print(u1.id)       
+        ar1 = Archival()
+        ar1.set_order_id(10).set_price(10000).set_customer(u1.id).set_employee(e1.id).set_date_ordered(datetime.now())
+        ar1.set_status(Archival.ENUM_STATUS_VALUES[1]).set_payment_method(Archival.ENUM_PAYMENT_METHODS_VALUES[1])        
+        ar1.set_firstname('Ala').set_surname('Makota').set_address('ul. Ładna 1/2').set_city('Wrocław').set_postal_code('50-000')
+        a.db.session.add(ar1)
         a.db.session.commit()
         
     a.db.drop_all()

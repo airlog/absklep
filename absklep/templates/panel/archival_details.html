@@ -5,57 +5,45 @@
         <div class="frame-title">Szczegóły zamówienia</div>
         <div style="padding: 5px;">
 			
-            <h4 style="padding-top: 20px; padding-bottom: 30px;">Zamówienie
-			<form class="form-inline" role="form" action="move_to_archivals" method="POST" name="change-status-form">
-				<input type="submit" style="float:right;" class="btn btn-default btn-warning" value="Zarchiwizuj" />
-			</form>
+            <h4 style="padding-top: 20px; padding-bottom: 30px;">
+				Zamówienie
             </h4>
 
             <table class="table" style="display:inline;">
 				<tr>
 					<th>Numer zamówienia</th>
-					<td>{{ order.id }}</td>
+					<td>{{ order.order_id }}</td>
 				</tr>
 				<tr>
 					<th>Data złożenia zamówienia</th>
 					<td>{{ order.date_ordered }}</td>
 				</tr>
 				<tr>
+					<th>Data zarchiwizowania</th>
+					<td>{{ order.date_archived }}</td>
+				</tr>
+				<tr>
 					<th>Status</th>
 					<td>
-    					<form class="form-inline" role="form" action="" method="POST" name="change-status-form">
-					        <select class="form-control" name="status">
-					            {% for option in order.ENUM_STATUS_VALUES %}
-					                {% if option == order.status %}
-                                        <option class="selected" value="{{ option }}" selected>{{ option }}</option>
-                                    {% else %}
-                                        <option class="non-selected" value="{{ option }}">{{ option }}</option>
-                                    {% endif %}    
-                                {% endfor %}
-                            </select>
-                            <input type="submit" class="btn btn-sm btn-primary" value="Ustaw" />
-                            <span class="btn btn-sm btn-default" onclick="$('.selected')[0].selected='selected';">
-                             Cofnij
-                             </span>
-                         </form>
+						{{ order.status }}
                     </td>
 				</tr>
 				<tr>
 					<th>Sposób odbioru</th>
-					<td>{{order.payment_method}}</td>
+					<td>{{ order.payment_method }}</td>
 				</tr>
             </table>
 
             <h4 style="padding-top: 20px; padding-bottom: 10px;">Adres dostawy</h4>
 			<table class="table" style="display: inline;">
 				<tr>
-					<td>{{order.firstname}} {{order.surname}}</td>
+					<td>{{ order.firstname }} {{ order.surname }}</td>
 				</tr>
 				<tr>
-					<td>{{order.address}}</td>
+					<td>{{ order.address }}</td>
 				</tr>
 				<tr>
-					<td>{{order.postal_code}} {{order.city}}</td>
+					<td>{{ order.postal_code }} {{ order.city }}</td>
 				</tr>				
 			</table>
 			

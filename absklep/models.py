@@ -59,7 +59,6 @@ class Product(db.Model):
         if date is None:
             date = datetime.now()
         self.date_added = date
-        print(date)
 
 
 class Comment(db.Model):
@@ -206,8 +205,8 @@ class Order(db.Model):
     __tablename__ = 'Orders'
     
     POSTAL_CODE_REGEX = Regex(r'(\d{2})-(\d{3})')
-    ENUM_STATUS_VALUES = ['w przygotowaniu do wyslania', 'wyslane',  'zakonczone', 'anulowane']
-    ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysylka za pobraniem', 'odbior osobisty']
+    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu do wysłania', 'wysłane', 'anulowane']
+    ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysyłka za pobraniem', 'odbiór osobisty']
     
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
@@ -315,22 +314,33 @@ class ProductArchivalAmount(db.Model):
     def __init__(self, amount=1):
         self.amount = amount
     
-    def set_product(self, product):
-        self.product = product
+    def set_product(self, product_id):
+        self.product_id = product_id
+        return self
+
+    def set_amount(self, amount):
+        self.amount = amount
+        return self
+
+    def set_archival(self, archival_id):
+        self.archival_id = archival_id
         return self
 
 
 class Archival(db.Model):
 
     __tablename__ = 'Archivals'
-    ENUM_STATUS_VALUES = ['w przygotowaniu do wyslania', 'wyslane',  'zakonczone', 'anulowane']
-    ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysylka za pobraniem', 'odbior osobisty']
+    
+    POSTAL_CODE_REGEX = Regex(r'(\d{2})-(\d{3})')
+    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu do wysłania', 'wysłane', 'anulowane']
+    ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysyłka za pobraniem', 'odbiór osobisty']
 
     id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'), nullable=False)
     date_ordered = db.Column(db.Date, nullable=False)
-    date_finished = db.Column(db.Date, nullable=False)
+    date_archived= db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='u'), nullable=False)
     payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES, name='v'), nullable=False)
     price = db.Column(db.Integer, nullable=False)
@@ -343,3 +353,65 @@ class Archival(db.Model):
 #    products = db.relationship('Product', backref=db.backref('archivals'), secondary=product_archival_assignment)
     products_amount = db.relationship('ProductArchivalAmount', backref=db.backref('archival'))
     
+    def __init__(self, date=None):
+        if date is None:
+            date = datetime.now()
+        self.date_archived = date
+
+    def set_date_ordered(self, date):
+        self.date_ordered = date
+        return self
+        
+    def set_order_id(self, order_id):
+        self.order_id = order_id
+        return self
+    
+    def set_payment_method(self, mt):
+        self.payment_method = mt
+        return self
+
+    def set_status(self, status):
+        if status not in self.ENUM_STATUS_VALUES:
+            raise ValueError("unsupported status value")
+        self.status = status
+        return self
+
+    def set_price(self, price):
+        self.price = price
+        return self
+
+    def set_firstname(self, name):
+        self.firstname = name
+        return self
+
+    def set_surname(self, name):
+        self.surname = name
+        return self
+
+    def set_address(self, addr):
+        if not isinstance(addr, str):
+            raise TypeError("a string expected")
+        self.address = addr
+        return self
+
+    def set_city(self, city):
+        if not isinstance(city, str):
+            raise TypeError("a string expected")
+        self.city = city
+        return self
+
+    def set_postal_code(self, code, regex=POSTAL_CODE_REGEX):
+        if not isinstance(code, str):
+            raise TypeError("postal code should be a string")
+        if not regex.match(code):
+            raise ValueError("postal code should match a regex '{}'".format(regex.pattern))
+        self.postal_code = code
+        return self
+
+    def set_customer(self, customer_id ):
+        self.customer_id = customer_id 
+        return self
+  
+    def set_employee(self, employee_id ):
+        self.employee_id = employee_id 
+        return self
