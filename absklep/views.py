@@ -81,25 +81,29 @@ def register():
 
     return render_template('auth/signup.html', form=form, logform=absklep.forms.Login(), message='')
 
-@app.route("/auth/signin", methods=['POST'])
+@app.route("/auth/signin", methods=['GET', 'POST'])
 def login():
     from flask import request
     from flask.ext.login import login_user
     from absklep.models import Customer
 
-    form = absklep.forms.Login(request.form)
-    if form.validate_on_submit():
-        user = app.db.session.query(Customer).filter(Customer.email == form.email.data).first()
-        if user is not None:
-            if user.verify_password(form.pas.data) and login_user( user, remember=form.remember.data):
-                flash('Zalogowano do sklepu!')
+    if request.method == 'POST':
+        form = absklep.forms.Login(request.form)
+        if form.validate_on_submit():
+            user = app.db.session.query(Customer).filter(Customer.email == form.email.data).first()
+            if user is not None:
+                if user.verify_password(form.pas.data) and login_user(user, remember=form.remember.data):
+                    flash('Zalogowano do sklepu!')
 
-                # zalogowanie udane, powrót
-                return redirect(url_for('index'))
-        flash('Niepoprawny login lub hasło')
+                    # zalogowanie udane, powrót
+                    return redirect(url_for('index'))
+            flash('Niepoprawny login lub hasło')
 
-    # zalogowanie nieudane, powrót
-    return redirect(url_for('index'))
+        # zalogowanie nieudane
+        return redirect(url_for('login'))
+
+    return render_template('auth/signin.html',
+                           logform=absklep.forms.Login())
 
 @app.route("/auth/signout/")
 @login_required

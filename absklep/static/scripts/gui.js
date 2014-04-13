@@ -2,7 +2,7 @@
 var loginForm = {
     show: function() {
         $("#fullscreen-dim").show();
-        $("#login-form").show();
+        $("#login-form-dialog").show();
 
         var that = this;
         $(document).keyup(function(e) {
@@ -15,7 +15,7 @@ var loginForm = {
 
     hide: function() {
         $("#fullscreen-dim").hide();
-        $("#login-form").hide();
+        $("#login-form-dialog").hide();
         $(document).unbind("keyup");
     },
 };
@@ -157,7 +157,7 @@ var cartView = (function() {
 
 function createGui() {
     $("#fullscreen-dim").hide();
-    $("#login-form").hide();
+    $("#login-form-dialog").hide();
     $('#added-to-cart-dialog').hide();
 }
 
