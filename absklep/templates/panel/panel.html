@@ -5,6 +5,23 @@
 <li><a href="/auth/signout/">Wyloguj</a></li>
 {% endblock %}
 
-{% block page %}
-Panel
+
+{% block pageLeft %}
+<div>
+	<div class="frame-title">Panel</div>
+	<ul class="list-unstyled" style="padding-left: 5px; padding-right: 5px;">
+		<li><a href="/panel/products/">Dodaj produkt</a></li>
+		<li><a href="/panel/modify/">Produkty</a></li>
+		<li><a>Moje zamówienia</a></li>
+    </ul>
+ </div>
+ 
+{% endblock %}
+
+
+
+{% block pageRight %}
+{% endblock %}
+
+{% block pageMiddle %}
 {% endblock %}

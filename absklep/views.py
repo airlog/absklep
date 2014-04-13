@@ -200,8 +200,10 @@ def add_product_view():
         for i in range(length):
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
 
-    from flask import request
+    from flask import request, g
     from .util import read_form
+
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
 
     if request.method == 'POST':
         from .models import Product, Property
@@ -411,3 +413,7 @@ def emplogin():
     
     return render_template('panel/login.html',
                             emplogin=emplogin)
+
+@app.route('/panel/modify/')
+def modify_product():
+	return render_template('panel/modify.html', logform=absklep.forms.Login())
