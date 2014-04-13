@@ -1,0 +1,41 @@
+{% extends 'panel/panel.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Zamówienia archiwalne</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Numer zamówienia</th>
+                        <th>Data zamówienia</th>
+                        <th>Data zarchiwizowania</th>
+                        <th>Wartość</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in archivals %}
+                    <tr>
+                        <td style="vertical-align: middle;">{{a.order_id }}</td>
+                        <td style="vertical-align: middle;">{{ a.date_ordered }}</td>
+                        <td style="vertical-align: middle;">{{ a.date_archived }}</td>
+                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(a.price/100.0) }} PLN</td>
+                        {% if a.status == a.ENUM_STATUS_VALUES[0] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-info">{{a.status}}</span></td>
+                        {% elif a.status == a.ENUM_STATUS_VALUES[1] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-warning">{{a.status}}</span></td>
+                        {% elif a.status == a.ENUM_STATUS_VALUES[2] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">{{a.status}}</span></td>
+                        {% elif a.status == a.ENUM_STATUS_VALUES[3] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-default">{{a.status}}</span></td>
+                        {% endif %}
+                        <td><a href="/panel/archivals/show/{{ a.id }}/">Szczegóły</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
