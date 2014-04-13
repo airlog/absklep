@@ -1,11 +1,13 @@
-{% extends 'index.html' %}
+{% extends 'panel/panel.html' %}
 
 {% block pageMiddle %}
     <div>
         <div class="frame-title">Szczegóły zamówienia</div>
         <div style="padding: 5px;">
 			
-            <h4 style="padding-top: 20px; padding-bottom: 30px;">Zamówienie</h4>
+            <h4 style="padding-top: 20px; padding-bottom: 30px;">Zamówienie
+            <span style="float:right;" class="btn btn-default btn-warning">Zarchiwizuj</span>
+            </h4>
 
             <table class="table" style="display:inline;">
 				<tr>
@@ -18,7 +20,23 @@
 				</tr>
 				<tr>
 					<th>Status</th>
-					<td>{{order.status}}</td>
+					<td>
+    					<form class="form-inline" rele="form" action="" method="POST" name="change-status-form">
+					        <select class="form-control" name="status">
+					            {% for option in order.ENUM_STATUS_VALUES %}
+					                {% if option == order.status %}
+                                        <option class="selected" value="{{ option }}" selected>{{ option }}</option>
+                                    {% else %}
+                                        <option class="non-selected" value="{{ option }}">{{ option }}</option>
+                                    {% endif %}    
+                                {% endfor %}
+                            </select>
+                            <input type="submit" class="btn btn-sm btn-primary" value="Ustaw" />
+                            <span class="btn btn-sm btn-default" onclick="$('.selected')[0].selected='selected';">
+                             Cofnij
+                             </span>
+                         </form>
+                    </td>
 				</tr>
 				<tr>
 					<th>Sposób odbioru</th>
