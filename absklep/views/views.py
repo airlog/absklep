@@ -6,196 +6,13 @@ from flask.ext.login import current_user, login_required
 from jinja2 import Markup
 from markdown import markdown
 
-from . import app, lorem
+from .. import app, lorem
 import absklep.forms
 
 #some communicates for now
 success = "Zostałeś zarejestrowany!"
 fail = "Podany email już istnieje."
 
-@app.route('/')
-@app.route('/products/')
-def index():
-    from jinja2 import Markup
-    from markdown import markdown
-    from sqlalchemy import func    
-    from .models import Product, Property
-    
-    def product_rate(product):
-    	rates = [c.rate for c in product.comments]
-    	return sum(rates)/len(rates) if len(rates) > 0 else 0
-    
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    products_best = Product.query.all()
-    products_best.sort(key=lambda p: product_rate(p), reverse=True)
-    products_last = Product.query.order_by(Product.date_added.desc())
-
-    return render_template('index.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
-                           products_best=products_best[0:4],
-                           products_last=products_last[0:4])
-
-@app.route('/products/category/<int:cid>/')
-def categoryview(cid):
-    from .models import Product, Property, product_property_assignment
-    
-    products = Product.query\
-        .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
-        .filter(product_property_assignment.columns.property_id == cid)\
-        .all()
-    
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    category = Property.query.filter(Property.id == cid).first()
-    
-    return render_template('category.html',
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
-                           products=products,
-                           category=category)
-
-@app.route("/auth/signup", methods=['GET', 'POST'])
-def register():
-    from flask import request
-    from absklep.models import Customer
-
-    form = absklep.forms.Register(request.form)
-
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            if app.db.session.query(Customer).filter(Customer.email == form.email.data).scalar() is None:
-                customer = Customer(str(form.email.data), str(form.pas.data))
-                app.db.session.add(customer)
-                app.db.session.commit()
-
-                # rejestracja udana
-                flash('Zostałeś zarejestrowany!')
-                return redirect(url_for('index'))
-
-            # blad rejestracji
-            flash('Podany email już istnieje.')
-            return redirect(url_for('register'))
-
-    return render_template('auth/signup.html', form=form, logform=absklep.forms.Login(), message='')
-
-@app.route("/auth/signin", methods=['GET', 'POST'])
-def login():
-    from flask import request
-    from flask.ext.login import login_user
-    from absklep.models import Customer
-
-    if request.method == 'POST':
-        form = absklep.forms.Login(request.form)
-        if form.validate_on_submit():
-            user = app.db.session.query(Customer).filter(Customer.email == form.email.data).first()
-            if user is not None:
-                if user.verify_password(form.pas.data) and login_user(user, remember=form.remember.data):
-                    flash('Zalogowano do sklepu!')
-
-                    # zalogowanie udane, powrót
-                    return redirect(url_for('index'))
-            flash('Niepoprawny login lub hasło')
-
-        # zalogowanie nieudane
-        return redirect(url_for('login'))
-
-    return render_template('auth/signin.html',
-                           logform=absklep.forms.Login())
-
-@app.route("/auth/signout/")
-@login_required
-def logout():
-    from flask.ext.login import logout_user
-
-    logout_user()
-    flash('Wylogowano z systemu!')
-    return redirect(url_for('index'))
-
-
-@app.route('/orders/make')
-def makeorderview():
-    return render_template('address.html',
-    	logform=absklep.forms.Login())
-
-@app.route('/orders/')
-@login_required
-def ordersview():
-    from flask import g
-    from .models import Order, Customer, Property
-    
-    if not g.current_user.is_authenticated():
-        flash('Nie jestes zalogowany!')
-        return redirect(url_for('index'))
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    orders = g.current_user.orders
-    return render_template('orders.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
-                           orders=orders)
-
-@app.route('/orders/show/<int:oid>/')
-@login_required
-def detailsview(oid):
-    from flask import g
-    from .models import Order, Property
-    
-    if not g.current_user.is_authenticated():
-        flash('Nie jestes zalogowany!')
-        return redirect(url_for('index'))
-    
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
-#    print(orders[0].products_amount)
-    return render_template('details.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           logform=absklep.forms.Login(),
-                           categories=categories,
-                           order=orders[0])
-
-#define error!!!
-@app.route('/products/<int:pid>/')
-def productview(pid):
-    def is_allowed_to_comment(user, product):
-        # niezalogowany nie może komentować
-        if not user.is_authenticated():
-            return False
-
-        product_ordered = product.id in (p.product.id for order in user.orders for p in order.products_amount)
-        already_commented = product.id in (c.product_id for c in user.comments)
-
-        return product_ordered and not already_commented
-
-    from flask import abort, g
-    from .models import Product, Comment, Customer, Property
-
-    args = {
-        "lorem": Markup(markdown(lorem, output='html5')),
-        "random": randint(0, 0xFFFFFFFF),
-        "logform": absklep.forms.Login(),
-    }
-
-    product = Product.query.get(pid)
-    if product is None:
-        abort(500)
-
-    comments = list(Comment.query.filter_by(product_id=pid))
-    for c in comments: c.customer_id = Customer.query.get(c.customer_id).email
-
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value).all()
-    properties = list(filter(lambda prop: prop.key !='Kategoria', product.properties))
-    properties.sort(key=lambda prop: prop.key)
-    
-    args['allow_comment'] = is_allowed_to_comment(g.current_user, product)
-    args['product'] = product
-    args['comments'] = comments
-    args['properties'] = properties
-    args['rate'] = sum([ c.rate for c in comments ])//len(comments) if len(comments) > 0 else 0
-    return render_template('product.html', categories=categories, **args)
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
 def add_product_view():
@@ -205,12 +22,12 @@ def add_product_view():
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
 
     from flask import request, g
-    from .util import read_form
+    from ..util import read_form
 
     if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
 
     if request.method == 'POST':
-        from .models import Product, Property
+        from ..models import Product, Property
 
         try:
             # odczytywanie danych z formularza
@@ -259,145 +76,18 @@ def add_product_view():
     return render_template('panel/add_product.html',
                            logform=absklep.forms.Login())
 
-@app.route('/products/<int:pid>/observe/')
-def observe_product(pid):
-    
-    from absklep.models import Product
-    
-    if current_user.is_anonymous(): 
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('productview', pid=pid))
-    
-    p = Product.query.get(pid)
-    current_user.observed.append(p)
-    app.db.session.commit()
-    flash('Obserwujesz '+p.name)
-    return redirect(url_for('index'))
-
-@app.route('/products/<int:pid>/unobserve/')
-def unobserve_product(pid):
-	
-    from absklep.models import Product
-	
-    if current_user.is_anonymous(): 
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('productview', pid=pid))
-    
-    p = Product.query.get(pid)
-    current_user.observed.remove(p)
-    app.db.session.commit()
-    flash('Obserwujesz '+p.name)
-    return redirect(url_for('observedview'))
-    
-@app.route('/observed/')
-def observedview():
-	
-    from absklep.models import Property
-	
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
-	
-    if current_user.is_anonymous():
-        flash('Musisz się zalogować, żeby obserwować produkty')
-        return redirect(url_for('index'))
-        
-    return render_template('observed.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           logform=absklep.forms.Login(),
-                           items=current_user.observed,
-                           user=current_user.email,
-                           categories=categories)
-
-@app.route('/cart/')
-def cartview():
-    def load_cart_cookie(cookie_name='cart'):
-        '''
-        Próbuje parsować zawartość koszyka, który powinień być zakodowanym w JSON słownikiem. Kluczem
-        w takim słowniku jest klucz główny (id) produktu, a wartością ilość tego produktu.
-        '''
-        import json
-        from flask import request
-        from .models import Product
-
-        jsonCart = request.cookies.get(cookie_name)
-        if jsonCart is None or jsonCart == '':
-            return {}
-
-        obj = json.loads(jsonCart)
-        if not isinstance(obj, dict):
-            return {}
-
-        cart = {}
-        for key, value in obj.items():
-            try:
-                product = Product.query.get(int(key))
-            except ValueError:
-                continue
-
-            if product is None:
-                continue
-
-            cart[product] = value
-
-        return cart
-    
-    from .models import Property
-
-    cart = load_cart_cookie()
-    categories = Property.query.filter(Property.key=='Kategoria').order_by(Property.value)
-
-    return render_template('cart.html',
-                           lorem=Markup(markdown(lorem, output='html5')),
-                           random=randint(0, 0xFFFFFFFF),
-                           logform=absklep.forms.Login(),
-                           cart=cart,
-                           categories=categories)
-
-@app.route('/products/<int:pid>/comments/new', methods=['POST'])
-@login_required
-def new_comment_product(pid):
-    from flask import g, abort
-
-    from .models import Comment, Product
-    from .util import read_form
-    
-    user = g.current_user
-    product = Product.query.get(pid)
-
-    # to raczej nigdy nie powinno się stać, ale warto o to zadbać
-    if product is None:
-        return abort(500)
-
-    try:
-        comment_text = read_form('comment')
-        rate = read_form('rate', cast=int)
-
-        if rate not in Comment.RATE_ALLOWED_VALUES:
-            raise ValueError()
-        if comment_text == '' or len(comment_text) <= 0:
-            raise ValueError()
-
-        comment = Comment(product.id, user.id, rate, comment_text)
-        app.db.session.add(comment)
-        app.db.session.commit()
-
-        flash('Dodano komentarz')
-    except ValueError:
-        flash('Dodawanie komentarza nieudane!')
-
-    return redirect(url_for('productview', **{'pid': pid}))
-
 
 @app.route('/panel/', methods=['GET', 'POST'])
 def emplogin():
     
     from flask import g, request
-    from .models import Employee
+    from ..models import Employee
     
     # pracownik jest juz zalogowany
     if g.current_user.is_authenticated() and g.current_user.__tablename__ == "Employees": return render_template('/panel/panel.html', logform=absklep.forms.Login())
     
-    from .util import read_form
-    from .forms import Emplogin
+    from ..util import read_form
+    from ..forms import Emplogin
     from flask.ext.login import login_user
     
     emplogin = Emplogin(request.form)
@@ -418,12 +108,13 @@ def emplogin():
     return render_template('panel/login.html',
                             emplogin=emplogin)
 
+
 @app.route('/panel/modify/', methods=['GET', 'POST'])
 def modify_product():
     from flask import g, abort, request
 
-    from .models import Product, Property, product_property_assignment
-    from .util import read_form
+    from ..models import Product, Property, product_property_assignment
+    from ..util import read_form
     
     if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
     
@@ -451,12 +142,13 @@ def modify_product():
         		
     return render_template('panel/modify.html', logform=absklep.forms.Login())
 
+
 @app.route('/panel/modify/<int:pid>/', methods=['GET', 'POST'])
 def modify_product_detail(pid):
     from flask import g, request
 
-    from .models import Product, Property
-    from .util import read_form
+    from ..models import Product, Property
+    from ..util import read_form
     
     if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
     
@@ -495,7 +187,7 @@ def modify_product_detail(pid):
 @app.route('/panel/modify/<int:pid>/remove/')
 def remove_product(pid):
     from flask import g
-    from .models import Product
+    from ..models import Product
     
     if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
     
@@ -509,8 +201,8 @@ def remove_product(pid):
 @app.route('/panel/addparam/', methods=['GET', 'POST'])
 def addparam():
     from flask import g, request
-    from .models import Property
-    from .util import read_form
+    from ..models import Property
+    from ..util import read_form
     
     if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
     
@@ -522,12 +214,13 @@ def addparam():
     return render_template('panel/addparam.html')
 
 
+
 @app.route('/panel/orders/')
 @login_required
 def panel_ordersview():
 
     from flask import g, request
-    from .models import Employee
+    from ..models import Employee
    		
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować, żeby zobaczyć zamówienia')
@@ -540,13 +233,14 @@ def panel_ordersview():
                            orders = orders
                            )
 
+
 @app.route('/panel/orders/show/<int:oid>/', methods=['GET', 'POST'])
 @login_required
 def panel_detailsview(oid):
     from flask import request, g
-    from .util import read_form
+    from ..util import read_form
     
-    from .models import Order, Property
+    from ..models import Order, Property
     
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować')
@@ -575,12 +269,13 @@ def panel_detailsview(oid):
                            logform=absklep.forms.Login(),
                            order=orders[0])
 
+
 @app.route('/panel/archivals/')
 @login_required
 def panel_archivalsview():
 
     from flask import g, request
-    from .models import Employee
+    from ..models import Employee
    		
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować, żeby zobaczyć zamówienia')
@@ -593,12 +288,13 @@ def panel_archivalsview():
                            archivals = archivals
                            )
 
+
 @app.route('/panel/archivals/show/<int:aid>/')
 @login_required
 def panel_archival_detailsview(aid):
 
     from flask import g, request
-    from .models import Employee
+    from ..models import Employee
    		
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować, żeby zobaczyć zamówienia')
@@ -614,12 +310,13 @@ def panel_archival_detailsview(aid):
                            logform=absklep.forms.Login(),
                            order=archivals[0])
 
+
 @app.route('/panel/orders/show/<int:oid>/move_to_archivals', methods=['POST'])
 @login_required
 def move_to_archivals(oid):
     from flask import request, g
     
-    from .models import Order, Archival, ProductAmount, ProductArchivalAmount 
+    from ..models import Order, Archival, ProductAmount, ProductArchivalAmount
     
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować')
@@ -652,11 +349,12 @@ def move_to_archivals(oid):
 
     return redirect(url_for('panel_ordersview'))
 
+
 @app.route('/panel/orders/unassigned/')
 @login_required
 def panel_unassigned_orders_view():
     from flask import g, request
-    from .models import Order
+    from ..models import Order
    		
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować, żeby zobaczyć zamówienia')
@@ -669,12 +367,13 @@ def panel_unassigned_orders_view():
                            logform=absklep.forms.Login(),
                            orders = orders
                            )
-    
+
+
 @app.route('/panel/orders/unassigned/show/<int:oid>/')
 @login_required
 def panel_unassigned_details_view(oid):
     from flask import g, request
-    from .models import Order
+    from ..models import Order
    		
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować, żeby zobaczyć zamówienia')
@@ -691,12 +390,13 @@ def panel_unassigned_details_view(oid):
                            order = orders[0]
                            )
 
+
 @app.route('/panel/orders/unassigned/show/<int:oid>/assign', methods=['POST'])
 @login_required
 def assign(oid):
     from flask import request, g
     
-    from .models import Order, Employee
+    from ..models import Order, Employee
      
     if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
         flash('Musisz się zalogować')
