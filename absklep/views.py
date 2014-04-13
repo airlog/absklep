@@ -199,12 +199,15 @@ def productview(pid):
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
 def add_product_view():
+	
     def get_properties_names(length):
         for i in range(length):
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
 
-    from flask import request
+    from flask import request, g
     from .util import read_form
+
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees": return redirect(url_for('emplogin'))
 
     if request.method == 'POST':
         from .models import Product, Property
@@ -356,7 +359,7 @@ def new_comment_product(pid):
 
     from .models import Comment, Product
     from .util import read_form
-
+    
     user = g.current_user
     product = Product.query.get(pid)
 
@@ -382,3 +385,39 @@ def new_comment_product(pid):
         flash('Dodawanie komentarza nieudane!')
 
     return redirect(url_for('productview', **{'pid': pid}))
+
+
+@app.route('/panel/', methods=['GET', 'POST'])
+def emplogin():
+    
+    from flask import g, request
+    from .models import Employee
+    
+    # pracownik jest juz zalogowany
+    if g.current_user.is_authenticated() and g.current_user.__tablename__ == "Employees": return render_template('/panel/panel.html', logform=absklep.forms.Login())
+    
+    from .util import read_form
+    from .forms import Emplogin
+    from flask.ext.login import login_user
+    
+    emplogin = Emplogin(request.form)
+    
+    if emplogin.validate_on_submit():
+        emp = app.db.session.query(Employee).filter(Employee.firstname == emplogin.fname.data, Employee.surname == emplogin.lname.data).first()
+        if emp is not None:
+            if emp.verify_password(emplogin.password.data) and login_user(emp):
+                flash('Zalogowano do sklepu!')
+                
+                # zalogowanie udane, powrót
+                return render_template('/panel/panel.html', logform=absklep.forms.Login())
+        flash('Niepoprawne dane lub hasło')
+
+    # zalogowanie nieudane, powrót
+        
+    
+    return render_template('panel/login.html',
+                            emplogin=emplogin)
+
+@app.route('/panel/modify/')
+def modify_product():
+	return render_template('panel/modify.html', logform=absklep.forms.Login())

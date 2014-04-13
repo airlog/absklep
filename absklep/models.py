@@ -111,6 +111,9 @@ class Customer(UserMixin, db.Model):
         
     def verify_password(self, pwd):
         return self.password == Customer.hash(Customer.combine(bytes.fromhex(self.salt),pwd))
+    
+    def get_id(self):
+        return 'u'+str(self.id)
 
         
 class Property(db.Model):
@@ -134,7 +137,7 @@ class Property(db.Model):
         self.key, self.value = str(key), str(value)
 
 
-class Employee(db.Model):
+class Employee(db.Model, UserMixin):
 
     __tablename__ = 'Employees'
 
@@ -171,6 +174,9 @@ class Employee(db.Model):
             salt = Employee.generate_salt()
         self.email, self.password, self.salt = email, Employee.hash(Employee.combine(salt, password)), ''.join(format(x, '02x') for x in salt)
         self.firstname, self.surname, self.pesel = firstname, surname, pesel
+    
+    def get_id(self):
+        return 'e'+str(self.id)
         
         
 class ProductAmount(db.Model):

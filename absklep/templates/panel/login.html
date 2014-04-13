@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+
+{% block loginForm %}
+{% endblock %}
+
+{% block page %}
+    <div>
+        <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Logowanie</h3>
+        </div>
+        <form id="emplogin" class="form-horizontal" role="form" action="" method="POST">
+			{{ emplogin.csrf_token }}
+			<table class="form-table">
+            <tr><td>{{ emplogin.fname(type="text", class="form-control", placeholder="Imię") }}</td></tr>
+            <tr><td>{{ emplogin.lname(type="text", class="form-control", placeholder="Nazwisko") }}</td></tr>
+            <tr><td>{{ emplogin.password(type="password", class="form-control", placeholder="Hasło") }}</td></tr>
+            <tr><td><input type="submit" class="btn btn-primary" value="Zaloguj"></td></tr>
+            </table>
+                
+                    <div class="text-right"></div>
+            
+        </form>
+    </div>
+{% endblock %}

@@ -116,7 +116,7 @@ def load_database(a):
         a.db.session.commit()
         
         u1 = Customer('admin1@pl','123')
-        e1 = Employee('Marek','Marek','12345678901','marek@buziaczek.pl','123')
+        e1 = Employee('Marek','Marek','marek@buziaczek.pl','123','12345678901')
 
         a.db.session.add(e1)
         a.db.session.commit()
@@ -148,7 +148,6 @@ load_config(app, package=__name__)
 load_database(app)
 
 login_manager = LoginManager()
-login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 import absklep.controllers

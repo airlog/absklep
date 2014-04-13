@@ -15,3 +15,8 @@ class Login(Form):
     email = TextField('Email ', [])
     pas = PasswordField('Haslo ', [])
     remember = BooleanField('Zapamietaj mnie', [])
+
+class Emplogin(Form):
+	password = PasswordField('Hasło', [])
+	fname = TextField('imie', [])
+	lname = TextField('nazw', [])
