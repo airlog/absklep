@@ -1,0 +1,30 @@
+{% extends 'panel/panel.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Zamówienia nieprzydzielone</div>
+        <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Numer zamówienia</th>
+                        <th>Data zamówienia</th>
+                        <th>Wartość</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                    <tr>
+                        <td style="vertical-align: middle;">{{o.id }}</td>
+                        <td style="vertical-align: middle;">{{ o.date_ordered }}</td>
+                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(o.price/100.0) }} PLN</td>
+                        <td><a href="/panel/orders/unassigned/show/{{ o.id }}/">Szczegóły</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

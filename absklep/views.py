@@ -582,4 +582,72 @@ def move_to_archivals(oid):
             flash('Wystąpił błąd podczas archiwizacji')
 
     return redirect(url_for('panel_ordersview'))
+
+@app.route('/panel/orders/unassigned/')
+@login_required
+def panel_unassigned_orders_view():
+    from flask import g, request
+    from .models import Order
+   		
+    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
+        flash('Musisz się zalogować, żeby zobaczyć zamówienia')
+        return redirect(url_for('index'))
+   
+    orders = list(filter( lambda o: o.employee_id == None, Order.query.all()))
     
+    return render_template('panel/unassigned.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           orders = orders
+                           )
+    
+@app.route('/panel/orders/unassigned/show/<int:oid>/')
+@login_required
+def panel_unassigned_details_view(oid):
+    from flask import g, request
+    from .models import Order
+   		
+    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
+        flash('Musisz się zalogować, żeby zobaczyć zamówienia')
+        return redirect(url_for('index'))
+   
+    orders = list(filter( lambda o: o.id == oid and o.employee_id == None, Order.query.all()))
+    if orders == []:
+        flash('Zamówienie o podanym id nie istnieje')
+        return redirect(url_for('panel_unassigned_sview'))
+
+    return render_template('panel/unassigned_details.html',
+                           lorem=Markup(markdown(lorem, output='html5')),
+                           logform=absklep.forms.Login(),
+                           order = orders[0]
+                           )
+
+@app.route('/panel/orders/unassigned/show/<int:oid>/assign', methods=['POST'])
+@login_required
+def assign(oid):
+    from flask import request, g
+    
+    from .models import Order, Employee
+     
+    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees": 
+        flash('Musisz się zalogować')
+        return redirect(url_for('index'))
+
+    orders = list(filter( lambda o: o.id == oid and o.employee_id == None, Order.query.all()))
+    if orders == []:
+        flash('Zamówienie o podanym id nie istnieje')
+        return redirect(url_for('panel_unassigned_sview'))
+    
+    if request.method == 'POST':
+        try:            
+            o = orders[0]
+            o.set_employee(g.current_user.id)
+            
+            app.db.session.commit()
+            
+            flash("Zamówienie o id: {} zostało przydzielone.".format(o.id))
+        except ValueError:
+            flash('Wystąpił błąd')
+
+    return redirect(url_for('panel_ordersview'))
+
