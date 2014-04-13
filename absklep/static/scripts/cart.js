@@ -117,12 +117,17 @@ var cart = (function() {
         storage.setContent(JSON.stringify(content));
         
         return true;
-    }
+    };
+    
+    var clear = function() {
+        storage.setContent(JSON.stringify({}));
+    };
         
     return {
         add: add,
         update: update,
         remove: remove,
+        clear: clear,
     };
 })();
 

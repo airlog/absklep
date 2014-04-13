@@ -13,7 +13,9 @@ def inject_user():
 
 @login_manager.user_loader
 def load_user(uid):
-    from absklep.models import Customer
+    from absklep.models import Customer, Employee
 
-    return Customer.query.get(uid)
+    if uid[0]=='u': return Customer.query.get(int(uid[1:]))
+    if uid[0]=='e': return Employee.query.get(int(uid[1:]))
+    return None
 

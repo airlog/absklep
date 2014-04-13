@@ -14,7 +14,7 @@
 <div id="fullscreen-dim"></div>
 {% block forms %}
 {% block loginForm %}
-    <div id="login-form">
+    <div id="login-form-dialog">
         <div class="fullscreen-border">
             <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Logowanie</h3>
             <button type="button" class="close" style="font-size: 32px;" aria-hidden="true" onclick="loginForm.hide()">&times;</button>
@@ -30,6 +30,15 @@
                 <div><span>Jeśli nie masz konta możesz się <a href="/auth/signup">zarejestrować</a>. To jest darmowe!</span></div>
             
         </form>
+    </div>
+{% endblock %}
+{% block productAddedDialog %}
+    <div id="added-to-cart-dialog">
+        <div class="fullscreen-border">
+            <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Dodano do koszyka</h3>
+            <button type="button" class="close" style="font-size: 32px;" aria-hidden="true" onclick="cartView.dialog.hide()">&times;</button>
+        </div>
+        <div class="text">Produkt został dodany do koszyka!</div>
     </div>
 {% endblock %}
 {% endblock %}
@@ -106,7 +115,7 @@
                             <div class="text-right">
                                 <span style="margin-right: 5px;">{{ "{0:.2f}".format(p.unit_price/100.0) }} PLN</span>
                                 <a href="/products/{{ p.id }}/"><button class="btn btn-default">Zobacz</button></a>
-                                <a onclick="cart.add({{ p.id }})" class="btn btn-primary">Do koszyka</a>
+                                <a onclick="cart.add({{ p.id }}); cartView.dialog.show()" class="btn btn-primary">Do koszyka</a>
                             </div>
                         </div>
                     </div>
