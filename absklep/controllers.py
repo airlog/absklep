@@ -19,3 +19,7 @@ def load_user(uid):
     if uid[0]=='e': return Employee.query.get(int(uid[1:]))
     return None
 
+
+def delete_cart_cookie(response, cookie_name='cart'):
+    response.set_cookie(cookie_name, expires=0)
+    return response
