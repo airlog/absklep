@@ -7,14 +7,35 @@ from ..forms import Login
 from ..models import Archival, ProductArchivalAmount
 from ..util import only_employee
 
+MAX_ON_PAGE = 20
 
 @app.route('/panel/archivals/')
+@app.route('/panel/archivals/page/<int:page>/')
+@app.route('/panel/archivals/sort/<sort>/')
+@app.route('/panel/archivals/page/<int:page>/sort/<sort>/')
 @only_employee('/panel/', message='Musisz sie zalogować żeby zobaczyć zamówienia!')
-def panel_archivalsview():
+def panel_archivalsview(page=1, sort='date_ordered'):
+    if page <= 0:
+        page = 1
+    
     archivals = g.current_user.archivals
+    
+    if sort == 'date_up':
+        archivals.sort(key=lambda a: a.date_ordered)
+    elif sort == 'number_up':
+        archivals.sort(key=lambda a: a.order_id)
+    elif sort == 'number_down':
+        archivals.sort(key=lambda a: a.order_id, reverse=True)
+    else:
+        archivals.sort(key=lambda a: a.date_ordered, reverse=True)
+
     return render_template('panel/archivals.html',
                            logform=Login(),
-                           archivals=archivals)
+                           archivals=archivals[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
+                           page=page,
+                           max=len(archivals)/MAX_ON_PAGE,
+                           sort=sort
+                           )
 
 
 @app.route('/panel/archivals/show/<int:aid>/')

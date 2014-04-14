@@ -24,7 +24,7 @@
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form">
 				<input type="hidden" name="attr" value="unit_price">
-				<input type="text" class="form-control" name="nval" value="{{ product.unit_price }}">
+				<input type="text" class="form-control" pattern="\d+\.\d\d" name="nval" value="{{ "{0:.2f}".format(product.unit_price/100.0) }}">
 				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
 			</form>
 		</td></tr>

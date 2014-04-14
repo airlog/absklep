@@ -213,7 +213,7 @@ class Order(db.Model):
     __tablename__ = 'Orders'
     
     POSTAL_CODE_REGEX = Regex(r'(\d{2})-(\d{3})')
-    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu do wysłania', 'wysłane', 'anulowane']
+    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu', 'wysłane', 'anulowane']
     ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysyłka za pobraniem', 'odbiór osobisty']
     
     id = db.Column(db.Integer, primary_key=True)
@@ -232,8 +232,10 @@ class Order(db.Model):
 #    products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
     products_amount = db.relationship('ProductAmount', cascade="all,delete", backref=db.backref('order'))
 
-    def __init__(self, d=date.today()):
-        self.date_ordered = d
+    def __init__(self, date=None):
+        if date is None:
+            date = datetime.now()
+        self.date_ordered = date
 
     def set_customer(self, customer):
         if isinstance(customer, Customer):
@@ -340,7 +342,7 @@ class Archival(db.Model):
     __tablename__ = 'Archivals'
     
     POSTAL_CODE_REGEX = Regex(r'(\d{2})-(\d{3})')
-    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu do wysłania', 'wysłane', 'anulowane']
+    ENUM_STATUS_VALUES = ['złożone', 'w przygotowaniu', 'wysłane', 'anulowane']
     ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysyłka za pobraniem', 'odbiór osobisty']
 
     id = db.Column(db.Integer, primary_key=True)

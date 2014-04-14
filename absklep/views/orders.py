@@ -54,12 +54,32 @@ def makeorderview():
 
 
 @app.route('/panel/orders/')
+@app.route('/panel/orders/page/<int:page>/')
+@app.route('/panel/orders/sort/<sort>/')
+@app.route('/panel/orders/page/<int:page>/sort/<sort>/')
 @only_employee('/panel/', message='Musisz sie zalogować żeby zobaczyć zamówienia!')
-def panel_ordersview():
+def panel_ordersview(page=1, sort='date_down'):
+
+    if page <= 0:
+        page = 1
+        
     orders = g.current_user.orders
+
+    if sort == 'date_up':
+        orders.sort(key=lambda o: o.date_ordered)
+    elif sort == 'number_up':
+        orders.sort(key=lambda o: o.id)
+    elif sort == 'number_down':
+        orders.sort(key=lambda o: o.id, reverse=True)
+    else:
+        orders.sort(key=lambda o: o.date_ordered, reverse=True)
+
     return render_template('panel/orders.html',
                            logform=Login(),
-                           orders=orders)
+                           orders=orders[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
+                           page=page,
+                           max=len(orders)/MAX_ON_PAGE,
+                           sort=sort)
 
 
 @app.route('/panel/orders/show/<int:oid>/', methods=['GET', 'POST'])
@@ -89,13 +109,32 @@ def panel_detailsview(oid):
 
 
 @app.route('/panel/orders/unassigned/')
+@app.route('/panel/orders/unassigned/page/<int:page>/')
+@app.route('/panel/orders/unassigned/sort/<sort>/')
+@app.route('/panel/orders/unassigned/page/<int:page>/sort/<sort>/')
 @only_employee('/panel/', message='Musisz sie zalogować żeby zobaczyć zamówienia!')
-def panel_unassigned_orders_view():
+def panel_unassigned_orders_view(page=1, sort='date_down'):
+
+    if page <= 0:
+        page = 1
+        
     orders = list(filter(lambda o: o.employee_id == None, Order.query.all()))
+
+    if sort == 'date_up':
+        orders.sort(key=lambda o: o.date_ordered)
+    elif sort == 'number_up':
+        orders.sort(key=lambda o: o.id)
+    elif sort == 'number_down':
+        orders.sort(key=lambda o: o.id, reverse=True)
+    else:
+        orders.sort(key=lambda o: o.date_ordered, reverse=True)
 
     return render_template('panel/unassigned.html',
                            logform=Login(),
-                           orders=orders)
+                           orders=orders,
+                           page=page,
+                           max=len(orders)/MAX_ON_PAGE,
+                           sort=sort)
 
 
 @app.route('/panel/orders/unassigned/show/<int:oid>/')
