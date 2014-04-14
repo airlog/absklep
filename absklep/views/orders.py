@@ -3,11 +3,10 @@ from flask import abort, flash, g, make_response, redirect, render_template, req
 from flask.ext.login import login_required
 
 from .. import app
-from ..controllers import delete_cart_cookie
+from ..controllers import load_cart_cookie, delete_cart_cookie
 from ..forms import Login
 from ..models import Property, ProductAmount, Order
 from ..util import read_form, only_employee
-from .cart import load_cart_cookie
 
 
 MAX_ON_PAGE = 10
