@@ -15,7 +15,7 @@
 		<tr><td colspan="3"><div class="frame-title">Nazwa</div></td></tr>
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form">
-				<input type="hidden" name="attr" value="n">
+				<input type="hidden" name="attr" value="name">
 				<input type="text" class="form-control" name="nval" value="{{ product.name }}">
 				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
 			</form>
@@ -23,7 +23,7 @@
 		<tr><td colspan="3"><div class="frame-title">Cena</div></td></tr>
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form">
-				<input type="hidden" name="attr" value="p">
+				<input type="hidden" name="attr" value="unit_price">
 				<input type="text" class="form-control" name="nval" value="{{ product.unit_price }}">
 				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
 			</form>
@@ -31,7 +31,7 @@
 		<tr><td colspan="3"><div class="frame-title">Ilość na stanie</div></td></tr>
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form">
-				<input type="hidden" name="attr" value="a">
+				<input type="hidden" name="attr" value="units_in_stock">
 				<input type="text" class="form-control" name="nval" value="{{ product.units_in_stock }}">
 				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
 			</form>
@@ -39,7 +39,7 @@
 		<tr><td colspan="3"><div class="frame-title">Opis</div></td></tr>
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form">
-				<input type="hidden" name="attr" value="d">
+				<input type="hidden" name="attr" value="description">
 				<textarea rows="5" type="text" class="form-control" name="nval">{{ product.description }}</textarea>
 				<input type="submit" class="btn btn-default" value="Zmień" style="width:100px;">
 			</form>
@@ -49,7 +49,7 @@
 		{% for p in product.properties %}
 		<tr><td colspan="3">
 			<form action="" method="POST" class="form-horizontal" role="form" id="form{{p.id}}">
-				<input type="hidden" name="attr" value="r">
+				<input type="hidden" name="attr" value="property">
 				<input type="hidden" id="m{{p.id}}" name="mode" value="ch">
 				<input type="hidden" name="key" value="{{p.key}}">
 				{{ p.key }}
@@ -61,7 +61,7 @@
 		{% endfor %}
 		<tr><td>
 			<form action="" method="POST" class="form-horizontal" role="form">
-				<input type="hidden" name="attr" value="ap">
+				<input type="hidden" name="attr" value="add_property">
 				<input type="text" class="form-control" name="key" placeholder="Parametr" style="width:200px; display:inline;">
 				<input type="text" class="form-control" name="nval" placeholder="Wartość" style="width:200px; display:inline;">
 				<input type="submit" class="btn btn-default" value="Dodaj" style="width:100px; display: inline;">

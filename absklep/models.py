@@ -15,8 +15,8 @@ VERY_SHORT_TEXT = 8 # e.g. apartment number
 
 product_customer_assignment = db.Table(
     'ProductCustomer',
-    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
-    db.Column('customer_id', db.Integer, db.ForeignKey('Customers.id'))
+    db.Column('product_id', db.Integer, db.ForeignKey('Products.id', ondelete='cascade')),
+    db.Column('customer_id', db.Integer, db.ForeignKey('Customers.id', ondelete='cascade'))
 )
 
 #product_order_assignment = db.Table(
@@ -33,8 +33,8 @@ product_customer_assignment = db.Table(
 
 product_property_assignment = db.Table(
     'ProductProperty',
-    db.Column('product_id', db.Integer, db.ForeignKey('Products.id')),
-    db.Column('property_id', db.Integer, db.ForeignKey('Properties.id'))
+    db.Column('product_id', db.Integer, db.ForeignKey('Products.id', ondelete='cascade')),
+    db.Column('property_id', db.Integer, db.ForeignKey('Properties.id', ondelete='cascade'))
 )
 
 
@@ -68,8 +68,8 @@ class Comment(db.Model):
     __tablename__ = 'Comments'
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id', ondelete='cascade'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id', ondelete='cascade'), nullable=False)
     date = db.Column(db.Date, nullable=False, default=date.today())
     rate = db.Column(db.Integer, nullable=False)
     text = db.Column(db.String(LONG_TEXT))
@@ -194,8 +194,8 @@ class ProductAmount(db.Model):
     __tablename__ = 'ProductAmounts'
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
-    order_id = db.Column(db.Integer, db.ForeignKey('Orders.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id', ondelete='cascade'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('Orders.id', ondelete='cascade'), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
 
     product = db.relationship('Product')
@@ -217,8 +217,8 @@ class Order(db.Model):
     ENUM_PAYMENT_METHODS_VALUES = ['przelew', 'wysyłka za pobraniem', 'odbiór osobisty']
     
     id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id', ondelete='cascade'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id', ondelete='cascade'))
     date_ordered = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='s'), nullable=False)
     payment_method = db.Column(db.Enum(*ENUM_PAYMENT_METHODS_VALUES,name='t'), nullable=False)
@@ -313,8 +313,8 @@ class ProductArchivalAmount(db.Model):
     __tablename__ = 'ProductArchivalAmounts'
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
-    archival_id = db.Column(db.Integer, db.ForeignKey('Archivals.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id', ondelete='cascade'), nullable=False)
+    archival_id = db.Column(db.Integer, db.ForeignKey('Archivals.id', ondelete='cascade'), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
 
     product = db.relationship('Product')
@@ -345,8 +345,8 @@ class Archival(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.id', ondelete='cascade'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('Employees.id', ondelete='cascade'), nullable=False)
     date_ordered = db.Column(db.Date, nullable=False)
     date_archived= db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(*ENUM_STATUS_VALUES, name='u'), nullable=False)

@@ -150,11 +150,12 @@ def modify_product_detail(pid):
     product = Product.query.get(pid)
 
     if request.method == 'POST':
-        if read_form('attr') == 'n': product.name = read_form('nval')
-        elif read_form('attr') == 'p': product.unit_price = read_form('nval')
-        elif read_form('attr') == 'a': product.units_in_stock = read_form('nval')
-        elif read_form('attr') == 'd': product.description = read_form('nval')
-        elif read_form('attr') == 'r':
+        
+        #co pracownik chce zmienic w produkcie
+        to_change = read_form('attr')
+        
+        #zmiana wartosci parametru, ktory juz byl prypisany do produktu
+        if to_change == 'property':
             key, val = read_form('key'), read_form('nval')
 
             if read_form('mode')=='rm':
@@ -166,7 +167,8 @@ def modify_product_detail(pid):
                     render_template('panel/modify_details.html', product=product)
                 product.properties = [ x for x in product.properties if x.key != key ]
                 product.properties.append(p)
-        elif read_form('attr') == 'ap':
+        #dodanie nowej pary klucz, wartosc
+        elif to_change == 'add_property':
             key, val = read_form('key'), read_form('nval')
 
             p = Property.query.filter(Property.key==key, Property.value==val).first()
@@ -174,7 +176,11 @@ def modify_product_detail(pid):
                 flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
                 render_template('panel/modify_details.html', product=product)
             product.properties.append(p)
+        #reszta
+        else:
+            setattr(product, to_change, read_form('nval'))
 
+        app.db.session.commit()
         flash('Produkt został zmieniony')
         product = Product.query.get(pid)
 
