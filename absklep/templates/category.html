@@ -4,12 +4,18 @@
     <div>
         <div class="frame-title">{{ category.value }}</div>
         <div style="padding: 5px;">
-            <table class="table">
+           <table class="table">
                 <thead>
                     <tr>
-                        <th>Nazwa</th>
-                        <th>Parametry</th>
-                        <th>Cena</th>
+                        <th>Nazwa 
+							<a href="/products/category/{{ category.id }}/sort/name_up/">&#9660;</a> 
+							<a href="/products/category/{{ category.id }}/sort/name_down/">&#9650;</a>
+						</th>
+                        <th>Opis</th>
+                        <th>Cena 
+                        	<a href="/products/category/{{ category.id }}/sort/price_up/">&#9660;</a> 
+							<a href="/products/category/{{ category.id }}/sort/price_down/">&#9650;</a>
+						</th>
                         <th>Dostępność</th>
                         <th></th>
                     </tr>
@@ -30,6 +36,17 @@
 					{% endfor %}
                 </tbody>
             </table>
+            <div style="text-align: center;">
+            {% if page > 1 %}
+				<a href="/products/category/{{ category.id }}/page/{{ page-1 }}/sort/{{ sort }}/">&#9668; previous</a>
+			{% endif %}
+			{% if page > 1 and  page < max %}
+				<span style="margin:10px">|</span>
+			{% endif %}
+			{% if page < max %}
+				<a href="/products/category/{{ category.id }}/page/{{ page+1 }}/sort/{{ sort }}">next &#9658;</a>
+			{% endif %}
+			</div>            
         </div>
     </div>
 {% endblock %}

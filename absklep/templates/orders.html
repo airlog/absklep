@@ -8,7 +8,10 @@
                 <thead>
                     <tr>
                         <th>Numer zamówienia</th>
-                        <th>Data zamówienia</th>
+                        <th>Data zamówienia
+							<a href="/orders/sort/date_up/">&#9660;</a> 
+							<a href="/orders/sort/date_down/">&#9650;</a>
+                        </th>
                         <th>Wartość</th>
                         <th>Status</th>
                         <th></th>
@@ -17,23 +20,38 @@
                 <tbody>
                     {% for o in orders %}
                     <tr>
-                        <td style="vertical-align: middle;">{{o.id }}</td>
-                        <td style="vertical-align: middle;">{{ o.date_ordered }}</td>
-                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(o.price/100.0) }} PLN</td>
-                        {% if o.status == o.ENUM_STATUS_VALUES[0] %}
-                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-info">{{o.status}}</span></td>
-                        {% elif o.status == o.ENUM_STATUS_VALUES[1] %}
-                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-warning">{{o.status}}</span></td>
-                        {% elif o.status == o.ENUM_STATUS_VALUES[2] %}
-                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">{{o.status}}</span></td>
-                        {% elif o.status == o.ENUM_STATUS_VALUES[3] %}
-                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-default">{{o.status}}</span></td>
+						{% if o[0]=='order' %}
+							<td style="vertical-align: middle;">{{o[1].id }}</td>
+                        {% else %}
+							<td style="vertical-align: middle;">{{o[1].order_id }}</td>
+						{% endif %}
+                        <td style="vertical-align: middle;">{{ o[1].date_ordered }}</td>
+                        <td style="vertical-align: middle;">{{ "{0:.2f}".format(o[1].price/100.0) }} PLN</td>
+                        {% if o[1].status == o[1].ENUM_STATUS_VALUES[0] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-info">{{o[1].status}}</span></td>
+                        {% elif o[1].status == o[1].ENUM_STATUS_VALUES[1] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-warning">{{o[1].status}}</span></td>
+                        {% elif o[1].status == o[1].ENUM_STATUS_VALUES[2] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-success">{{o[1].status}}</span></td>
+                        {% elif o[1].status == o[1].ENUM_STATUS_VALUES[3] %}
+                            <td style="vertical-align: middle;"><span class="btn btn-xs btn-default">{{o[1].status}}</span></td>
                         {% endif %}
-                        <td><a href="/orders/show/{{ o.id }}/">Szczegóły</a></td>
+                        <td><a href="/orders/show/{{ o[1].id }}/">Szczegóły</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div style="text-align: center;">
+            {% if page > 1 %}
+				<a href="/orders/page/{{ page-1 }}/sort/{{ sort }}/">&#9668; previous</a>
+			{% endif %}
+			{% if page > 1 and  page < max %}
+				<span style="margin:10px">|</span>
+			{% endif %}
+			{% if page < max %}
+				<a href="/orders/page/{{ page+1 }}/sort/{{ sort }}/">next &#9658;</a>
+			{% endif %}
+			</div>
         </div>
     </div>
 {% endblock %}

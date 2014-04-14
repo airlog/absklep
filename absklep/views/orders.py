@@ -8,14 +8,33 @@ from ..models import Property, Order
 from ..util import read_form, only_employee
 
 
+MAX_ON_PAGE = 10
+
 @app.route('/orders/')
+@app.route('/orders/page/<int:page>/')
+@app.route('/orders/sort/<sort>/')
+@app.route('/orders/page/<int:page>/sort/<sort>/')
 @login_required
-def ordersview():
+def ordersview(page=1, sort='date_down'):
+    if page <= 0:
+        page = 1
     orders = g.current_user.orders
+    archivals = g.current_user.archivals
+    
+    all_orders = [('archival', a) for a in archivals] + [('order', o) for o in orders]
+
+    if sort == 'date_up':
+        all_orders.sort(key=lambda o: o[1].date_ordered)
+    else:
+        all_orders.sort(key=lambda o: o[1].date_ordered, reverse=True)
+    
     return render_template('orders.html',
                            logform=Login(),
                            categories=Property.get_categories(),
-                           orders=orders)
+                           orders=all_orders[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
+                           page=page,
+                           max=len(all_orders)/MAX_ON_PAGE,
+                           sort=sort)
 
 
 @app.route('/orders/show/<int:oid>/')

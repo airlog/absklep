@@ -7,6 +7,7 @@ from ..forms import Login
 from ..models import Product, Property, Comment
 from ..util import read_form
 
+MAX_ON_PAGE = 10
 
 @app.route('/')
 @app.route('/products/')
@@ -32,9 +33,15 @@ def index():
 
 
 @app.route('/products/category/<int:cid>/')
-def categoryview(cid):
+@app.route('/products/category/<int:cid>/sort/<sort>/')
+@app.route('/products/category/<int:cid>/page/<int:page>/')
+@app.route('/products/category/<int:cid>/page/<int:page>/sort/<sort>/')
+def categoryview(cid, page=1, sort='name_up'):
     from ..models import Product, Property, product_property_assignment
 
+    if page <= 0:
+        page = 1
+    
     products = Product\
         .query\
         .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
@@ -46,11 +53,23 @@ def categoryview(cid):
         .filter(Property.id == cid)\
         .first()
 
+    if sort == 'price_up':
+        products.sort(key=lambda p: p.unit_price)
+    elif sort == 'price_down':
+        products.sort(key=lambda p: p.unit_price, reverse=True)
+    elif sort == 'name_down':
+        products.sort(key=lambda p: p.name, reverse=True)
+    else:
+        products.sort(key=lambda p: p.name)
+        
     return render_template('category.html',
                            logform=Login(),
                            categories=Property.get_categories(),
-                           products=products,
-                           category=category)
+                           products=products[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
+                           category=category,
+                           page=page,
+                           max=len(products)/MAX_ON_PAGE,
+                           sort=sort)
 
 
 @app.route('/products/<int:pid>/comments/new', methods=['POST'])
