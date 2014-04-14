@@ -1,9 +1,10 @@
 
-from flask import abort, g, render_template
+from flask import abort, flash, g, render_template, request, redirect, url_for
 
 from .. import app
 from ..forms import Login
-from ..models import Product, Comment, Customer, Property
+from ..models import Comment, Customer, Product, Property
+from ..util import read_form
 
 
 def is_allowed_to_comment(user, product):
@@ -48,4 +49,158 @@ def productview(pid):
                            **args)
 
 
-__all__ = ['productview', ]
+@app.route('/panel/products/', methods=['GET', 'POST'])
+def add_product_view():
+    def get_properties_names(length):
+        for i in range(length):
+            yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
+
+    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
+        return redirect(url_for('emplogin'))
+
+    if request.method == 'POST':
+        try:
+            # odczytywanie danych z formularza
+            product_name = read_form('product_name')
+            properties_count = read_form('properties_count', cast=int)
+            category = read_form('category')
+            unit_price = read_form('unit_price', cast=float)
+            units_in_stock = read_form('units_in_stock', cast=int)
+            description = read_form('description')
+            properties = [(request.form[keyName], request.form[valueName]) for keyName, valueName in get_properties_names(properties_count)]
+
+            # przefiltrowanie zbednych wartosci
+            properties = list(
+                filter(lambda t: t[0] is not None and len(t[0]) > 0 and t[1] is not None and len(t[1]) > 0,
+                properties))
+
+            # sprawdzanie czy taka kategoria juz istnieje
+            # jesli nie, tworzymy nowa kategorie
+            categoryObj = Property.get_object_by_tuple(Property.KEY_CATEGORY, category)
+            if categoryObj is None:
+                categoryObj = Property(Property.KEY_CATEGORY, category)
+
+            # sprawdzanie czy dana para (cecha, wartosc) juz istnieje
+            # jesli nie, tworzymy nowy obiekt
+            propertiesObjs = []
+            for key, value in properties:
+                obj = Property.get_object_by_tuple(key, value)
+                if obj is None:
+                    obj = Property(key, value)
+                propertiesObjs.append(obj)
+
+            # tworzenie nowego produktu i dodawanie mu cech
+            product = Product(product_name, unit_price, instock=units_in_stock, description=description)
+            product.properties.extend(propertiesObjs)
+            product.properties.append(categoryObj)
+
+            app.db.session.add(product)
+            app.db.session.commit()
+
+            flash("Dodano produkt")
+        except ValueError:
+            flash('Dodanie produktu nieudane')
+
+        return redirect(url_for('add_product_view'))
+
+    return render_template('panel/add_product.html',
+                           logform=Login())
+
+
+@app.route('/panel/modify/', methods=['GET', 'POST'])
+def modify_product():
+    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
+        return redirect(url_for('emplogin'))
+
+    if request.method == 'POST':
+        try:
+            pid = int(read_form('pid'))
+            product = Product.query.get(pid)
+            if product is not None:
+                return redirect(url_for('modify_product_detail', pid=pid))
+            flash('Produkt o podanym id nie istnieje')
+            return redirect(url_for('modify_product'))
+        except:
+            pass
+
+        try:
+            cnt = int(read_form('count'))
+        except:
+            return render_template('panel/modify.html', logform=Login())
+
+        name = read_form('name')
+        products = Product\
+            .query\
+            .filter(Product.name.like("%"+name+"%"))\
+            .all()
+
+        for i in range(1, cnt+1):
+            k, v = read_form('param%d' % i), read_form('val%d' % i)
+            if k != '' and v != '':
+                products = products.filter(Product.properties.any(key=k, value=v))
+
+        return render_template('panel/choosemodify.html',
+                               logform=Login(),
+                               products=products)
+
+    return render_template('panel/modify.html',
+                           logform=Login())
+
+
+@app.route('/panel/modify/<int:pid>/', methods=['GET', 'POST'])
+def modify_product_detail(pid):
+    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
+        return redirect(url_for('emplogin'))
+
+    product = Product.query.get(pid)
+
+    if request.method == 'POST':
+        if read_form('attr') == 'n': product.name = read_form('nval')
+        elif read_form('attr') == 'p': product.unit_price = read_form('nval')
+        elif read_form('attr') == 'a': product.units_in_stock = read_form('nval')
+        elif read_form('attr') == 'd': product.description = read_form('nval')
+        elif read_form('attr') == 'r':
+            key, val = read_form('key'), read_form('nval')
+
+            if read_form('mode')=='rm':
+                product.properties = [ x for x in product.properties if x.key != key ]
+            else:
+                p = Property.query.filter(Property.key==key, Property.value==val).first()
+                if p is None:
+                    flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
+                    render_template('panel/modify_details.html', product=product)
+                product.properties = [ x for x in product.properties if x.key != key ]
+                product.properties.append(p)
+        elif read_form('attr') == 'ap':
+            key, val = read_form('key'), read_form('nval')
+
+            p = Property.query.filter(Property.key==key, Property.value==val).first()
+            if p is None:
+                flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
+                render_template('panel/modify_details.html', product=product)
+            product.properties.append(p)
+
+        flash('Produkt został zmieniony')
+        product = Product.query.get(pid)
+
+    return render_template('panel/modify_details.html',
+                           product=product)
+
+
+@app.route('/panel/modify/<int:pid>/remove/')
+def remove_product(pid):
+    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
+    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
+        return redirect(url_for('emplogin'))
+
+    app.db.session.delete(Product.query.get(pid))
+    app.db.session.commit()
+
+    flash('Produkt został usunięty')
+    return redirect(url_for('modify_product'))
+
+
+__all__ = ['productview', 'add_product_view', 'modify_product', 'modify_product_detail', 'remove_product', ]

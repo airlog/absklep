@@ -1,10 +1,10 @@
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, g, redirect, render_template, request, url_for
 from flask.ext.login import login_required, login_user, logout_user
 
 from .. import app
-from ..forms import Login, Register
-from ..models import Customer
+from ..forms import Login, Register, Emplogin
+from ..models import Customer, Employee
 
 
 @app.route("/auth/signup", methods=['GET', 'POST'])
@@ -59,4 +59,30 @@ def logout():
     return redirect(url_for('index'))
 
 
-__all__ = ['register', 'login', 'logout', ]
+@app.route('/panel/', methods=['GET', 'POST'])
+def emplogin():
+    # pracownik jest juz zalogowany
+    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
+    if g.current_user.is_authenticated() and g.current_user.__tablename__ == "Employees":
+        return render_template('/panel/panel.html', logform=Login())
+
+    if request.method == 'POST':
+        emplogin = Emplogin(request.form)
+        if emplogin.validate_on_submit():
+            emp = app.db.session.query(Employee).filter(Employee.firstname == emplogin.fname.data, Employee.surname == emplogin.lname.data).first()
+            if emp is not None:
+                if emp.verify_password(emplogin.password.data) and login_user(emp):
+                    # zalogowanie udane, powrót
+                    flash('Zalogowano do sklepu!')
+                    return redirect(url_for('emplogin'))
+
+            # zalogowanie nieudane, powrót
+            flash('Niepoprawne dane lub hasło')
+            return redirect(url_for('emplogin'))
+
+    # wchodzi niezalogowany pracownik albo użytkownik
+    return render_template('panel/login.html',
+                            emplogin=Emplogin())
+
+
+__all__ = ['register', 'login', 'logout', 'emplogin', ]
