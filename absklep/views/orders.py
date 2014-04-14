@@ -1,10 +1,11 @@
 
-from flask import flash, g, redirect, render_template, request, url_for
+from flask import abort, flash, g, make_response, redirect, render_template, request, url_for
 from flask.ext.login import login_required
 
 from .. import app
+from ..controllers import load_cart_cookie, delete_cart_cookie
 from ..forms import Login
-from ..models import Property, Order
+from ..models import Property, ProductAmount, Order
 from ..util import read_form, only_employee
 
 
@@ -47,10 +48,75 @@ def detailsview(oid):
                            order=orders[0])
 
 
-@app.route('/orders/make')
+@app.route('/orders/new', methods=['GET', 'POST'])
+@login_required
 def makeorderview():
-    return render_template('address.html',
-                           logform=Login())
+    def get():
+        return render_template('address.html',
+                               logform=Login(),
+                               cart=load_cart_cookie(),
+                               payment_methods=Order.ENUM_PAYMENT_METHODS_VALUES[:])
+
+    def post():
+        def cast_payment_method(txt):
+            if txt not in Order.ENUM_PAYMENT_METHODS_VALUES:
+                 raise ValueError()
+            return txt
+
+        def cast_nonempty_str(txt):
+            if txt is not None and len(txt) > 0:
+                return txt
+            return None
+
+        failureMethod, successMethod = 'makeorderview', 'ordersview'
+        cart = load_cart_cookie()
+
+        # koszyk jest pusty
+        if len(cart) <= 0:
+            flash('Żeby złożyć zamówienie najpierw wypełnij koszyk!')
+            return redirect(url_for(failureMethod))
+
+        try:
+            name, surname = read_form('name'), read_form('surname')
+            house, apartment = read_form('housenum'), read_form('apartmentnum', allow_none=True, cast=cast_nonempty_str)
+            street, postal, city = read_form('street'), read_form('postalcode'), read_form('city')
+            payment = read_form('payment', cast=cast_payment_method)
+            address = '{}/{}'.format(house, apartment) if apartment is not None else house
+        except ValueError:
+            flash('Wystąpił błąd podczas przetwarzania żądania!')
+            return redirect(url_for(failureMethod))
+
+        # tworzenie obiektów do bazy danych
+        price = sum((product.unit_price * int(amount) for product, amount in cart.items()))
+        paIter = (ProductAmount(amount).set_product(product) for product, amount in cart.items())
+
+        order = Order()\
+            .set_price(price)\
+            .set_customer(g.current_user.id)\
+            .set_firstname(name)\
+            .set_surname(surname)\
+            .set_address(address)\
+            .set_city(city)\
+            .set_postal_code(postal)\
+            .set_payment_method(payment)\
+            .done()
+        for pa in paIter:
+            order.add_product_amount(pa)
+
+        # zapisanie zmian w bazie danych
+        try:
+            app.db.session.add(order)
+            app.db.session.commit()
+        except:  # TODO: bardziej szczegółowo łapać
+            abort(500)
+
+        flash('Zamówienie złożone')
+        return delete_cart_cookie(make_response(redirect(url_for(successMethod))))
+
+    try:
+        return {'GET': get, 'POST': post, }[request.method.upper()]()
+    except KeyError:
+        abort(405)
 
 
 @app.route('/panel/orders/')

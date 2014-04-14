@@ -1,31 +1,79 @@
 {% extends 'index.html' %}
 
 {% block page %}
-    <div id="register-form">
+    <script>
+        $(document).ready(function() {
+            cartView.recount();
+        });
+    </script>
+    <div id="order-form">
         <div class="fullscreen-border">
             <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Dane adresowe</h3>
         </div>
-        <form class="form-horizontal" role="form" action="" method="POST">
+        <form id="realform" class="form-horizontal" action="" method="POST">
             <table id="address-data-table" style="width: 100%;">
                 <tr>
-                    <td colspan="3"><input type="text" class="form-control" name="name" placeholder="Imię adresata" required="true"></td>
+                    <td colspan="3"><input type="text" class="form-control" name="name" placeholder="Imię adresata" required/></td>
                 </tr>
                 <tr>
-                    <td colspan="3"><input type="text" class="form-control" name="surname" placeholder="Nazwisko adresata" required="true"></td>
+                    <td colspan="3"><input type="text" class="form-control" name="surname" placeholder="Nazwisko adresata" required/></td>
                 </tr>
                 <tr>
-                    <td><input type="text" class="form-control" name="street" placeholder="Ulica" required="true"></td>
-                    <td><input type="text" class="form-control" name="housenum" placeholder="Numer domu" required="true" pattern="\d+"></td>
-                    <td><input type="text" class="form-control" name="apartmentnum" placeholder="Numer mieszkania" pattern="\d+\w+"></td>
+                    <td><input type="text" class="form-control" name="street" placeholder="Ulica" required/></td>
+                    <td><input type="text" class="form-control" name="housenum" placeholder="Numer domu" pattern="\d+" required/></td>
+                    <td><input type="text" class="form-control" name="apartmentnum" placeholder="Numer mieszkania" pattern="\d+|(\d+\w+)"/></td>
                 </tr>
                 <tr>
-                    <td><input type="text" class="form-control" name="postalcode" placeholder="Kod pocztowy, np. XX-XXX" required="true" pattern="\d{2}-\d{3}"></td>
-                    <td colspan="2"><input type="text" class="form-control" name="city" placeholder="Miasto/poczta" required="true"></td>
+                    <td><input type="text" class="form-control" name="postalcode" placeholder="Kod pocztowy, np. XX-XXX" pattern="\d{2}-\d{3}" required/></td>
+                    <td colspan="2"><input type="text" class="form-control" name="city" placeholder="Miasto/poczta" required/></td>
                 </tr>
                 <tr>
-                    <td class="text-right" colspan="3"><button type="submit" class="btn btn-primary" onclick="addressForm.onPreRegister()">Dalej</button></td>
+                    <td colspan="3">
+                        <select class="form-control" name="payment" placeholder="Sposób płatności" required>
+                            <option></option>
+                            {% for method in payment_methods %}
+                                <option value="{{ method }}">{{ method }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                 </tr>
             </table>
         </form>
+    </div>
+
+    <div id="order-form-display">
+        <div style="padding: 10px;">
+            <div style="padding: 5px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produkt</th>
+                        <th>Cena jednostkowa</th>
+                        <th>Ilość</th>
+                        <th>Cena</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product, amount in cart.items() %}
+                        <tr name="product">
+                            <input type="hidden" name="productid" value="{{ product.id }}"/>
+                            <td>{{ product.name }}</td>
+                            <td>{{ "{0:.2f}".format(product.unit_price/100.0) }} PLN</td>
+                            <td><input type="hidden" pattern="\d+" style="width: 20%; margin-left: 5px;" value="{{ amount }}"/>{{ amount }}</td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="text-right" colspan="3"><b>Suma</b></td>
+                        <td><span id="Sum"></span></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-right" style="padding: 10px;">
+            <button form="realform" type="submit" class="btn btn-primary">Zamawiam</button>
+        </div>
     </div>
 {% endblock %}
