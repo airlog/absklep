@@ -7,8 +7,14 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Numer zamówienia</th>
-                        <th>Data zamówienia</th>
+                        <th>Numer
+                        	<a href="/panel/orders/sort/number_up/">&#9660;</a> 
+							<a href="/panel/orders/sort/number_down/">&#9650;</a>
+                        </th>
+                        <th>Zamówienie
+                        	<a href="/panel/orders/sort/date_up/">&#9660;</a> 
+							<a href="/panel/orders/sort/date_down/">&#9650;</a>
+                        </th>
                         <th>Wartość</th>
                         <th>Status</th>
                         <th></th>
@@ -34,6 +40,18 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <div style="text-align: center;">
+            {% if page > 1 %}
+				<a href="/panel/orders/page/{{ page-1 }}/sort/{{ sort }}/">&#9668; previous</a>
+			{% endif %}
+			{% if page > 1 and  page < max %}
+				<span style="margin:10px">|</span>
+			{% endif %}
+			{% if page < max %}
+				<a href="/panel/orders/page/{{ page+1 }}/sort/{{ sort }}/">next &#9658;</a>
+			{% endif %}
+			</div>
+
         </div>
     </div>
 {% endblock %}
