@@ -63,7 +63,7 @@ def add_product_view():
             product_name = read_form('product_name')
             properties_count = read_form('properties_count', cast=int)
             category = read_form('category')
-            unit_price = read_form('unit_price', cast=float)
+            unit_price = int(read_form('unit_price').replace('.',""))
             units_in_stock = read_form('units_in_stock', cast=int)
             description = read_form('description')
             properties = [(request.form[keyName], request.form[valueName]) for keyName, valueName in get_properties_names(properties_count)]
@@ -178,7 +178,10 @@ def modify_product_detail(pid):
             product.properties.append(p)
         #reszta
         else:
-            setattr(product, to_change, read_form('nval'))
+            if to_change == 'unit_price':
+                setattr(product, to_change, int(read_form('nval').replace('.',"")))                
+            else:
+                setattr(product, to_change, read_form('nval'))
 
         app.db.session.commit()
         flash('Produkt został zmieniony')
