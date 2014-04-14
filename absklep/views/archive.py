@@ -5,16 +5,12 @@ from flask.ext.login import login_required
 from .. import app
 from ..forms import Login
 from ..models import Archival, ProductArchivalAmount
+from ..util import only_employee
 
 
 @app.route('/panel/archivals/')
-@login_required
+@only_employee('/panel/', message='Musisz sie zalogować żeby zobaczyć zamówienia!')
 def panel_archivalsview():
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees":
-        flash('Musisz się zalogować, żeby zobaczyć zamówienia')
-        return redirect(url_for('index'))
-
     archivals = g.current_user.archivals
     return render_template('panel/archivals.html',
                            logform=Login(),
@@ -22,13 +18,8 @@ def panel_archivalsview():
 
 
 @app.route('/panel/archivals/show/<int:aid>/')
-@login_required
+@only_employee('/panel/', message='Musisz sie zalogować żeby zobaczyć zamówienia!')
 def panel_archival_detailsview(aid):
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees":
-        flash('Musisz się zalogować, żeby zobaczyć zamówienia')
-        return redirect(url_for('index'))
-
     archivals = list(filter(lambda o: o.id == aid, g.current_user.archivals))
     if archivals == []:
         flash('Zamówienie o podanym id nie istnieje')
@@ -40,13 +31,8 @@ def panel_archival_detailsview(aid):
 
 
 @app.route('/panel/orders/show/<int:oid>/move_to_archivals', methods=['POST'])
-@login_required
+@only_employee('/panel/', message='Musisz sie zalogować!')
 def move_to_archivals(oid):
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or not g.current_user.__tablename__ == "Employees":
-        flash('Musisz się zalogować')
-        return redirect(url_for('index'))
-
     orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
     if orders == []:
         flash('Zamówienie o podanym id nie istnieje')

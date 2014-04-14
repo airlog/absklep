@@ -1,10 +1,11 @@
 
-from flask import flash, g, redirect, render_template, request, url_for
+from flask import abort, flash, g, redirect, render_template, request, url_for
 from flask.ext.login import login_required, login_user, logout_user
 
 from .. import app
 from ..forms import Login, Register, Emplogin
 from ..models import Customer, Employee
+from ..util import is_employee, is_customer
 
 
 @app.route("/auth/signup", methods=['GET', 'POST'])
@@ -61,11 +62,6 @@ def logout():
 
 @app.route('/panel/', methods=['GET', 'POST'])
 def emplogin():
-    # pracownik jest juz zalogowany
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if g.current_user.is_authenticated() and g.current_user.__tablename__ == "Employees":
-        return render_template('/panel/panel.html', logform=Login())
-
     if request.method == 'POST':
         emplogin = Emplogin(request.form)
         if emplogin.validate_on_submit():
@@ -80,7 +76,14 @@ def emplogin():
             flash('Niepoprawne dane lub hasło')
             return redirect(url_for('emplogin'))
 
-    # wchodzi niezalogowany pracownik albo użytkownik
+    # pracownik lub klient jest juz zalogowany
+    if g.current_user.is_authenticated():
+        if is_employee(g.current_user):
+            return render_template('/panel/panel.html', logform=Login())
+        if is_customer(g.current_user):
+            abort(405)
+
+    # wchodzi niezalogowany
     return render_template('panel/login.html',
                             emplogin=Emplogin())
 

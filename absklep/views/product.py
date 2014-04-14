@@ -1,10 +1,11 @@
 
 from flask import abort, flash, g, render_template, request, redirect, url_for
+from flask.ext.login import login_required
 
 from .. import app
 from ..forms import Login
 from ..models import Comment, Customer, Product, Property
-from ..util import read_form
+from ..util import read_form, only_employee
 
 
 def is_allowed_to_comment(user, product):
@@ -50,14 +51,11 @@ def productview(pid):
 
 
 @app.route('/panel/products/', methods=['GET', 'POST'])
+@only_employee('/panel/')
 def add_product_view():
     def get_properties_names(length):
         for i in range(length):
             yield 'propertyKey{}'.format(i), 'propertyValue{}'.format(i)
-
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
-        return redirect(url_for('emplogin'))
 
     if request.method == 'POST':
         try:
@@ -109,11 +107,8 @@ def add_product_view():
 
 
 @app.route('/panel/modify/', methods=['GET', 'POST'])
+@only_employee('/panel/')
 def modify_product():
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
-        return redirect(url_for('emplogin'))
-
     if request.method == 'POST':
         try:
             pid = int(read_form('pid'))
@@ -150,11 +145,8 @@ def modify_product():
 
 
 @app.route('/panel/modify/<int:pid>/', methods=['GET', 'POST'])
+@only_employee('/panel/')
 def modify_product_detail(pid):
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
-        return redirect(url_for('emplogin'))
-
     product = Product.query.get(pid)
 
     if request.method == 'POST':
@@ -191,11 +183,8 @@ def modify_product_detail(pid):
 
 
 @app.route('/panel/modify/<int:pid>/remove/')
+@only_employee('/panel/')
 def remove_product(pid):
-    # TODO: zmienić na @login_required i inny sposób na pozwalanie tylko pracownikom
-    if not g.current_user.is_authenticated() or g.current_user.__tablename__ != "Employees":
-        return redirect(url_for('emplogin'))
-
     app.db.session.delete(Product.query.get(pid))
     app.db.session.commit()
 
