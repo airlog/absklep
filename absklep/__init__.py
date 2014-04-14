@@ -1,12 +1,7 @@
 
-from flask import Flask, request, render_template, flash, url_for, redirect
+from flask import Flask
+from flask.ext.login import LoginManager
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
-
-from jinja2 import Markup
-from markdown import markdown
-
-from random import randint
 
 __version__ = "0.1.0"
 __envvar__ = "ABSKLEP_SETTINGS"
@@ -14,8 +9,6 @@ __envvar__ = "ABSKLEP_SETTINGS"
 app = Flask(__name__)
 app.db = SQLAlchemy(app)
 
-lorem = 'dummy'
-with open('lorem.txt') as file: lorem = file.read()
 
 import absklep.models
 
@@ -35,8 +28,8 @@ def load_config(a, package=None):
     except RuntimeError:
         pass
 
+
 def load_database(a):
-	
     def some_data_for_tests():
         from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount, Archival
         from datetime import date, datetime
@@ -139,8 +132,7 @@ def load_database(a):
         u1.orders.append(o2)
         a.db.session.add(u1)
         a.db.session.commit()
- 
-        print(u1.id)       
+
         ar1 = Archival()
         ar1.set_order_id(10).set_price(10000).set_customer(u1.id).set_employee(e1.id).set_date_ordered(datetime.now())
         ar1.set_status(Archival.ENUM_STATUS_VALUES[1]).set_payment_method(Archival.ENUM_PAYMENT_METHODS_VALUES[1])        
@@ -149,7 +141,6 @@ def load_database(a):
         a.db.session.commit()
         
     a.db.drop_all()
-    #a.db.engine.execute('drop schema public cascade; create schema public;')
     
     a.db.create_all()
     some_data_for_tests()
