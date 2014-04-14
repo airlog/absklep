@@ -232,14 +232,16 @@ class Order(db.Model):
 #    products = db.relationship('Product', backref=db.backref('orders'), secondary=product_order_assignment)
     products_amount = db.relationship('ProductAmount', cascade="all,delete", backref=db.backref('order'))
 
-    def __init__(self, date=None):
-        if date is None:
-            date = datetime.now()
-        self.date_ordered = date
+    def __init__(self, d=None, status=None):
+        if d is None:
+            d = datetime.now()
+        self.date_ordered = d
+
+        if status is None:
+            status = Order.ENUM_STATUS_VALUES[0]
+        self.status = status
 
     def set_customer(self, customer):
-        if isinstance(customer, Customer):
-            customer = customer.id
         self.customer_id = customer
         return self
 
@@ -295,19 +297,16 @@ class Order(db.Model):
         self.products_amount.append(product_amount)
         return self
 
-    def count_price(self, discount=None):
+    def count_price(self):
         """
         Count total price for order. Price is calculated by summing :unitPrice: fields of products contained in :products:
-        field. Discount should be a value from 0.0 to 1.0, where 1.0 means 100% price and 0.3 means 30% of summed :unitPrice:.
+        field.
         """
-        if discount is None:
-            discount = 1.0
-        self.price = sum((p.amount * p.product.unit_price for p in self.products_amount)) * discount
+        self.price = sum((p.amount * p.product.unit_price for p in self.products_amount))
         return self
 
     def done(self):
-        pass
-
+        return self
 
 
 class ProductArchivalAmount(db.Model):
