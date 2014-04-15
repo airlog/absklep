@@ -46,7 +46,7 @@ def productview(pid):
     args['rate'] = sum([c.rate for c in comments ])//len(comments) if len(comments) > 0 else 0
 
     return render_template('product.html',
-                           categories=Property.KEY_CATEGORY,
+                           categories=Property.get_categories(),
                            **args)
 
 
