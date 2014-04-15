@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+
+{% block pageMiddle %}
+    <div>
+        <div class="frame-title">Szczegóły zamówienia</div>
+        <div style="padding: 5px;">
+			
+            <h4 style="padding-top: 20px; padding-bottom: 30px;">Zamówienie</h4>
+
+            <table class="table" style="display:inline;">
+				<tr>
+					<th>Numer zamówienia</th>
+					<td>{{order.order_id}}</td>
+				</tr>
+				<tr>
+					<th>Data złożenia zamówienia</th>
+					<td>{{order.date_ordered}}</td>
+				</tr>
+				<tr>
+					<th>Status</th>
+					<td>{{order.status}}</td>
+				</tr>
+				<tr>
+					<th>Sposób odbioru</th>
+					<td>{{order.payment_method}}</td>
+				</tr>
+            </table>
+
+            <h4 style="padding-top: 20px; padding-bottom: 10px;">Adres dostawy</h4>
+			<table class="table" style="display: inline;">
+				<tr>
+					<td>{{order.firstname}} {{order.surname}}</td>
+				</tr>
+				<tr>
+					<td>{{order.address}}</td>
+				</tr>
+				<tr>
+					<td>{{order.postal_code}} {{order.city}}</td>
+				</tr>				
+			</table>
+			
+            <h4 style="padding-top: 20px; padding-bottom: 10px;">Produkty</h4>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produkt</th>
+                        <th>Cena jednostkowa</th>
+                        <th>Ilość</th>
+                        <th>Cena</th>
+                    </tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pa in order.products_amount %}
+                    <tr>
+                        <td>{{ pa.product.name }}</td>
+                        <td>{{ "{0:.2f}".format(pa.product.unit_price/100.0) }} PLN</td>
+                        <td>&times; {{ pa.amount }}</td>
+                        <td>{{ "{0:.2f}".format((pa.amount * pa.product.unit_price)/100.0) }} PLN</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="text-right" colspan="3"><b>Suma</b></td>
+                        <td><span>{{ "{0:.2f}".format(order.price/100.00) }} PLN</span></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+{% endblock %}

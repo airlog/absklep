@@ -36,7 +36,11 @@
                         {% elif o[1].status == o[1].ENUM_STATUS_VALUES[3] %}
                             <td style="vertical-align: middle;"><span class="btn btn-xs btn-default">{{o[1].status}}</span></td>
                         {% endif %}
-                        <td><a href="/orders/show/{{ o[1].id }}/">Szczegóły</a></td>
+						{% if o[0]=='order' %}
+							<td><a href="/orders/show/{{ o[1].id }}/">Szczegóły</a></td>
+                        {% else %}
+							<td><a href="/orders/show/{{ o[1].id }}/archival/">Szczegóły</a></td>
+						{% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
