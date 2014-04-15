@@ -1,53 +1,41 @@
-{% extends 'panel/panel.html' %}
+{% extends 'index.html' %}
 
 {% block pageMiddle %}
     <div>
         <div class="frame-title">Szczegóły zamówienia</div>
         <div style="padding: 5px;">
 			
-            <h4 style="padding-top: 20px; padding-bottom: 30px;">
-				Zamówienie
-            </h4>
+            <h4 style="padding-top: 20px; padding-bottom: 30px;">Zamówienie</h4>
 
             <table class="table" style="display:inline;">
 				<tr>
 					<th>Numer zamówienia</th>
-					<td>{{ order.order_id }}</td>
-				</tr>
-				<tr>
-					<th>Klient</th>
-					<td>{{ order.customer.email }}</td>
+					<td>{{order.order_id}}</td>
 				</tr>
 				<tr>
 					<th>Data złożenia zamówienia</th>
-					<td>{{ order.date_ordered }}</td>
-				</tr>
-				<tr>
-					<th>Data zarchiwizowania</th>
-					<td>{{ order.date_archived }}</td>
+					<td>{{order.date_ordered}}</td>
 				</tr>
 				<tr>
 					<th>Status</th>
-					<td>
-						{{ order.status }}
-                    </td>
+					<td>{{order.status}}</td>
 				</tr>
 				<tr>
 					<th>Sposób odbioru</th>
-					<td>{{ order.payment_method }}</td>
+					<td>{{order.payment_method}}</td>
 				</tr>
             </table>
 
             <h4 style="padding-top: 20px; padding-bottom: 10px;">Adres dostawy</h4>
 			<table class="table" style="display: inline;">
 				<tr>
-					<td>{{ order.firstname }} {{ order.surname }}</td>
+					<td>{{order.firstname}} {{order.surname}}</td>
 				</tr>
 				<tr>
-					<td>{{ order.address }}</td>
+					<td>{{order.address}}</td>
 				</tr>
 				<tr>
-					<td>{{ order.postal_code }} {{ order.city }}</td>
+					<td>{{order.postal_code}} {{order.city}}</td>
 				</tr>				
 			</table>
 			

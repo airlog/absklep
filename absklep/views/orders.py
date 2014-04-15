@@ -47,6 +47,15 @@ def detailsview(oid):
                            categories=Property.get_categories(),
                            order=orders[0])
 
+@app.route('/orders/show/<int:oid>/archival/')
+@login_required
+def archival_details_view(oid):
+    archivals = list(filter(lambda o: o.id == oid, g.current_user.archivals))
+    return render_template('archival_details.html',
+                           logform=Login(),
+                           categories=Property.get_categories(),
+                           order=archivals[0])
+
 
 @app.route('/orders/new', methods=['GET', 'POST'])
 @login_required
