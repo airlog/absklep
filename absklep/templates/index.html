@@ -7,6 +7,7 @@
     <script src="http://code.jquery.com/jquery-2.1.0.js"></script>
     <script src="/static/scripts/gui.js"></script>
     <script src="/static/scripts/cart.js"></script>
+    <script src="/static/scripts/last.js"></script>
     <title>{% block title %}absklep{% endblock %}</title>
 </head>
 <body onload="createGui()">
@@ -153,11 +154,14 @@
             {% block pageRight %}
                 <div class="text-center">
                     <div class="frame-title text-right">Ostatnio ogłądane</div>
-                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
-                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
-                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
-                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
-                    <div><img src="/static/images/nophoto.png" width="128" height="128"/></div>
+                    {% for p in g.last_visited %}
+						<div>
+							<a href="/products/{{ p.id }}/"/>
+								{{ p.name }} <br/>
+								<img src="/static/images/nophoto.png" width="128" height="128"/>
+							</a>
+						</div>
+					{% endfor %}
                 </div>
             {% endblock %}
         </div>
