@@ -69,6 +69,7 @@
                 <thead>
                     <tr>
                         <th>Produkt</th>
+                        <th>Id produktu</th>
                         <th>Cena jednostkowa</th>
                         <th>Ilość</th>
                         <th>Cena</th>
@@ -79,13 +80,14 @@
                     {% for pa in order.products_amount %}
                     <tr>
                         <td>{{ pa.product.name }}</td>
+                        <td>{{ pa.product.id }}</td>
                         <td>{{ "{0:.2f}".format(pa.product.unit_price/100.0) }} PLN</td>
                         <td>&times; {{ pa.amount }}</td>
                         <td>{{ "{0:.2f}".format((pa.amount * pa.product.unit_price)/100.0) }} PLN</td>
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td class="text-right" colspan="3"><b>Suma</b></td>
+                        <td class="text-right" colspan="4"><b>Suma</b></td>
                         <td><span>{{ "{0:.2f}".format(order.price/100.00) }} PLN</span></td>
                         <td></td>
                     </tr>

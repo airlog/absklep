@@ -62,11 +62,14 @@ def categoryview(cid, page=1, sort='name_up'):
     else:
         products.sort(key=lambda p: p.name)
         
+    properties = { p.id : list(filter(lambda x: x.key != Property.KEY_CATEGORY, sorted(p.properties, key=lambda x: x.key))) for p in products }
+    
     return render_template('category.html',
                            logform=Login(),
                            categories=Property.get_categories(),
                            products=products[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
                            category=category,
+                           properties=properties,
                            page=page,
                            max=len(products)/MAX_ON_PAGE,
                            sort=sort)

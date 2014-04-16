@@ -58,7 +58,10 @@ def move_to_archivals(oid):
     if orders == []:
         flash('Zamówienie o podanym id nie istnieje')
         return redirect(url_for('panel_ordersview'))
-
+    if (orders[0].status != orders[0].ENUM_STATUS_VALUES[2] and orders[0].status != orders[0].ENUM_STATUS_VALUES[3]):
+        flash('Zamówienia z obecnym statusem nie można zarchiwizować.')
+        return redirect(url_for('panel_detailsview', **{'oid': oid}))
+    
     if request.method == 'POST':
         try:
             o = orders[0]
@@ -80,6 +83,6 @@ def move_to_archivals(oid):
             flash('Wystąpił błąd podczas archiwizacji')
 
     return redirect(url_for('panel_ordersview'))
-
+    
 
 __all__ = ['panel_archivalsview', 'panel_archival_detailsview', 'move_to_archivals', ]
