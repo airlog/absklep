@@ -9,6 +9,9 @@ var lastVisited = (function() {
 		}
         else if (content.indexOf(id) == -1) {
 			content.unshift(id);
+		} else {
+			content.splice(content.indexOf(id), 1);
+			content.unshift(id);
 		}
 		if (content.length > 5) {
 			content.pop();			

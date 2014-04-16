@@ -157,25 +157,25 @@ def modify_product_detail(pid):
         #zmiana wartosci parametru, ktory juz byl prypisany do produktu
         if to_change == 'property':
             key, val = read_form('key'), read_form('nval')
+            print("{} : {} {}".format(to_change,key,val))
 
             if read_form('mode')=='rm':
                 product.properties = [ x for x in product.properties if x.key != key ]
             else:
-                p = Property.query.filter(Property.key==key, Property.value==val).first()
+                p = Property.query.filter(Property.key==key).first()
                 if p is None:
                     flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
-                    render_template('panel/modify_details.html', product=product)
-                product.properties = [ x for x in product.properties if x.key != key ]
-                product.properties.append(p)
+                    return redirect(url_for('modify_product_detail', pid=pid))
+                p.set_value(val)
         #dodanie nowej pary klucz, wartosc
         elif to_change == 'add_property':
             key, val = read_form('key'), read_form('nval')
 
-            p = Property.query.filter(Property.key==key, Property.value==val).first()
-            if p is None:
-                flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
-                render_template('panel/modify_details.html', product=product)
-            product.properties.append(p)
+            p = Property.query.filter(Property.key==key).first()
+            if p is not None:
+                flash('Taki parametr już istnieje')
+                return redirect(url_for('modify_product_detail', pid=pid))
+            product.properties.append(Property(key,val))
         #reszta
         else:
             if to_change == 'unit_price':

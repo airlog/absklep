@@ -11,7 +11,7 @@
 							<a href="/products/category/{{ category.id }}/sort/name_up/">&#9660;</a> 
 							<a href="/products/category/{{ category.id }}/sort/name_down/">&#9650;</a>
 						</th>
-                        <th>Opis</th>
+                        <th>Parametry</th>
                         <th>Cena 
                         	<a href="/products/category/{{ category.id }}/sort/price_up/">&#9660;</a> 
 							<a href="/products/category/{{ category.id }}/sort/price_down/">&#9650;</a>
@@ -24,7 +24,11 @@
 					{% for p in products %}
                     <tr>
                         <td style="vertical-align: middle;">{{ p.name }}</td>
-                        <td style="vertical-align: middle; font-style: italic;">{{ p.description }}</td>
+                        <td style="vertical-align: middle; font-style: italic; width: 40%;">
+                        {% for prop in properties[p.id] %}
+                            {{ prop.value }} &nbsp; 
+                        {% endfor %}
+                        </td>
                         <td style="vertical-align: middle;">{{ "{0:.2f}".format(p.unit_price/100.0) }} PLN</td>
                         {% if p.units_in_stock > 0%}
 							<td style="vertical-align: middle;"><span class="btn btn-xs btn-success">dostępny</span></td>

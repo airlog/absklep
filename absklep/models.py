@@ -128,6 +128,10 @@ class Property(db.Model):
     key = db.Column(db.String(SHORT_TEXT))
     value = db.Column(db.String(SHORT_TEXT))
 
+    def set_value(self, value):
+        self.value = value
+        return self
+
     @staticmethod
     def get_object_by_tuple(key, value):
         return Property\
