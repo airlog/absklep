@@ -4,7 +4,7 @@ from flask.ext.login import login_required
 
 from .. import app
 from ..forms import Login
-from ..models import Comment, Customer, Product, Property
+from ..models import Comment, Customer, Product, Property, product_property_assignment
 from ..util import read_form, only_employee
 
 
@@ -153,29 +153,63 @@ def modify_product_detail(pid):
         
         #co pracownik chce zmienic w produkcie
         to_change = read_form('attr')
+        print(to_change)
         
-        #zmiana wartosci parametru, ktory juz byl prypisany do produktu
+        #zmiana wartosci parametru, ktory juz byl przypisany do produktu
         if to_change == 'property':
             key, val = read_form('key'), read_form('nval')
-            print("{} : {} {}".format(to_change,key,val))
 
             if read_form('mode')=='rm':
-                product.properties = [ x for x in product.properties if x.key != key ]
+                p_old = list(filter(lambda x: x.key == key, product.properties))
+                if not p_old:
+                    flash('Taki parametr nie istnieje')
+                    return redirect(url_for('modify_product_detail', pid=pid))
+                products = Product\
+                        .query\
+                        .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
+                        .join(Property, Property.id == product_property_assignment.columns.property_id)\
+                        .filter(Property.key==p_old[0].key, Property.value==p_old[0].value)\
+                        .all()
+                product.properties.remove(p_old[0])
+                # jeśli nie ma innych produktów z usuwaną cechą to usuwamy cechę z bazy
+                if products and len(products) == 1:
+                    app.db.session.delete(p_old[0])
+
             else:
-                p = Property.query.filter(Property.key==key).first()
-                if p is None:
+                p_old = list(filter(lambda x: x.key == key, product.properties))
+                if not p_old:
                     flash('Taki parametr nie istnieje, najpierw musisz go dodać z głównego menu')
                     return redirect(url_for('modify_product_detail', pid=pid))
-                p.set_value(val)
+                products = Product\
+                        .query\
+                        .join(product_property_assignment, Product.id == product_property_assignment.columns.product_id)\
+                        .join(Property, Property.id == product_property_assignment.columns.property_id)\
+                        .filter(Property.key==p_old[0].key, Property.value==p_old[0].value)\
+                        .all()
+                p_new = Property.query.filter(Property.key==key, Property.value==val).first()
+                #jeśli nie ma jeszcze takiej cechy w bazie to tworzymy nową
+                if p_new is None:
+                    p_new = Property(key, val)
+                # dodanie nowej, usuniecie starej cechy z produktu
+                product.properties.append(p_new)
+                product.properties.remove(p_old[0])
+                # jeśli nie ma innych produktów z starą cechą to usuwamy cechę z bazy                
+                if products and len(products) == 1:
+                    app.db.session.delete(p_old[0])
+                
         #dodanie nowej pary klucz, wartosc
         elif to_change == 'add_property':
             key, val = read_form('key'), read_form('nval')
-
-            p = Property.query.filter(Property.key==key).first()
-            if p is not None:
+               
+            p_new = Property.query.filter(Property.key==key, Property.value==val).first()
+            p_old = list(filter(lambda x: x.key == key, product.properties))
+            if p_old:
                 flash('Taki parametr już istnieje')
                 return redirect(url_for('modify_product_detail', pid=pid))
-            product.properties.append(Property(key,val))
+            #jeśli nie ma jeszcze takiej cechy w bazie to tworzymy nową
+            if p_new is None:
+                p_new = Property(key,val)
+            product.properties.append(p_new)
         #reszta
         else:
             if to_change == 'unit_price':
