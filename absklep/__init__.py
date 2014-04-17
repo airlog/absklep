@@ -154,3 +154,8 @@ login_manager.init_app(app)
 import absklep.controllers
 import absklep.views
 import absklep.forms
+
+from absklep.views import login
+
+login_manager.login_view = 'login'
+
