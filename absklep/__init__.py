@@ -146,7 +146,7 @@ def load_database(a):
     some_data_for_tests()
 
 load_config(app, package=__name__)
-load_database(app)
+#load_database(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -158,4 +158,7 @@ import absklep.forms
 from absklep.views import login
 
 login_manager.login_view = 'login'
+
+import absklep.create 
+absklep.create.load_database(app)
 
