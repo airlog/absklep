@@ -73,6 +73,14 @@ def add_product_view():
                 filter(lambda t: t[0] is not None and len(t[0]) > 0 and t[1] is not None and len(t[1]) > 0,
                 properties))
 
+            file = request.files['photo']
+            filepath = "/static/images/nophoto.png"
+            if file:
+                filename = file.filename
+                path = "{}/{}".format(app.get_upload_folder, filename)
+                file.save(path)
+                filepath = "{}{}".format("/static/images/photos/", filename)
+                print(filepath)
             # sprawdzanie czy taka kategoria juz istnieje
             # jesli nie, tworzymy nowa kategorie
             categoryObj = Property.get_object_by_tuple(Property.KEY_CATEGORY, category)
@@ -92,6 +100,7 @@ def add_product_view():
             product = Product(product_name, unit_price, instock=units_in_stock, description=description)
             product.properties.extend(propertiesObjs)
             product.properties.append(categoryObj)
+            product.set_photo(filepath)
 
             app.db.session.add(product)
             app.db.session.commit()
@@ -153,8 +162,7 @@ def modify_product_detail(pid):
         
         #co pracownik chce zmienic w produkcie
         to_change = read_form('attr')
-        print(to_change)
-        
+                
         #zmiana wartosci parametru, ktory juz byl przypisany do produktu
         if to_change == 'property':
             key, val = read_form('key'), read_form('nval')
@@ -212,7 +220,26 @@ def modify_product_detail(pid):
             product.properties.append(p_new)
         #reszta
         else:
-            if to_change == 'unit_price':
+            if to_change == 'photo':
+                old_file = product.photo_src
+                file = request.files['photo']
+                filepath = "/static/images/nophoto.png"
+                if file:
+                    filename = file.filename
+                    path = "{}/{}".format(app.get_upload_folder, filename)
+                    file.save(path)
+                    filepath = "{}{}".format("/static/images/photos/", filename)
+                    product.set_photo(filepath)
+                products = Product\
+                            .query\
+                            .filter(Product.photo_src==old_file)\
+                            .all()
+                if len(products) == 1 and old_file != '/static/images/nophoto.png':
+                    from os import remove
+                    from os.path import abspath
+                    file_abs = '{}/absklep{}'.format(abspath('.'), old_file)
+                    remove(file_abs)
+            elif to_change == 'unit_price':
                 setattr(product, to_change, int(read_form('nval').replace('.',"")))                
             else:
                 setattr(product, to_change, read_form('nval'))
@@ -228,6 +255,17 @@ def modify_product_detail(pid):
 @app.route('/panel/modify/<int:pid>/remove/')
 @only_employee('/panel/')
 def remove_product(pid):
+    product = Product.query.get(pid)
+    old_file = product.photo_src
+    products = Product\
+        .query\
+        .filter(Product.photo_src==old_file)\
+        .all()
+    if len(products) == 1 and old_file != '/static/images/nophoto.png':
+        from os import remove
+        from os.path import abspath
+        file_abs = '{}/absklep{}'.format(abspath('.'), old_file)
+        remove(file_abs)
     app.db.session.delete(Product.query.get(pid))
     app.db.session.commit()
 

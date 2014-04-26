@@ -8,7 +8,7 @@
         <div class="fullscreen-border">
             <h3 class="pull-left" style="color: white; margin-top: 3px; margin-left: 5px;">Nowy produkt</h3>
         </div>
-        <form id="add-product-form" class="form-horizontal" role="form" action="" method="POST" name="add-product-form">
+        <form id="add-product-form" class="form-horizontal" role="form" action="" method="POST" name="add-product-form" enctype="multipart/form-data">
             <input id="add-product-form-properties-count" type="hidden" name="properties_count" value="0"/>
             <table id="add-product-table" class="form-table" style="width: 100%;">
                 <tr>
@@ -22,6 +22,9 @@
                 </tr>
                 <tr>
                     <td colspan="2"><input type="text" class="form-control" name="units_in_stock" placeholder="Dostępnych sztuk" required="true" pattern="\d+"></td>
+                </tr>
+                <tr>
+					<td colspan="2">Zdjecie:<input type="file" name="photo" required="false"></td>
                 </tr>
                 <tr>
                     <td colspan="2"><textarea class="form-control" name="description" placeholder="Opis" style="resize: vertical;"></textarea></td>

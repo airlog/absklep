@@ -145,6 +145,9 @@ def load_database(a):
     a.db.create_all()
     some_data_for_tests()
 
+from os.path import abspath
+app.get_upload_folder = '{}/{}'.format(abspath('.'),'absklep/static/images/photos')
+
 load_config(app, package=__name__)
 load_database(app)
 

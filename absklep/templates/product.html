@@ -6,7 +6,7 @@
 </script>
 <div class="frame-title">{{ product.name }}</div>
 <div style="margin-top: 40px;">
-	<img class="pull-left" style="border: solid 2px #a0c5e4; margin: 0px 10px 10px 10px;" src="/static/images/nophoto.png" alt="brak zdjecia" width="250" height="250"/>
+	<img class="pull-left" style="border: solid 2px #a0c5e4; margin: 0px 10px 10px 10px;" src="{{ product.photo_src}}" alt="brak zdjecia" width="250" height="250"/>
 	<div class="pull-right" >
 		<a href="./observe/" class="btn btn-default btn-lg">Obserwuj</a>
 		<a onclick="cart.add({{ product.id }}); lastVisited.add({{ product.id }}); cartView.dialog.show();"><button class="btn btn-primary btn-lg">Kup</button></a>
