@@ -210,7 +210,7 @@ def panel_unassigned_orders_view(page=1, sort='date_down'):
 
     return render_template('panel/unassigned.html',
                            logform=Login(),
-                           orders=orders,
+                           orders=orders[(page-1)*MAX_ON_PAGE:page*MAX_ON_PAGE],
                            page=page,
                            max=len(orders)/MAX_ON_PAGE,
                            sort=sort)
