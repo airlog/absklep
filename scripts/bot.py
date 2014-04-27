@@ -83,7 +83,7 @@ def get_vobis_database(app):
 if __name__ == '__main__':
     from sys import exit
     
-     get_vobis_database(absklep.app)
+    get_vobis_database(absklep.app)
 
     exit(0)
 

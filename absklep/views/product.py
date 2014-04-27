@@ -80,7 +80,6 @@ def add_product_view():
                 path = "{}/{}".format(app.get_upload_folder, filename)
                 file.save(path)
                 filepath = "{}{}".format("/static/images/photos/", filename)
-                print(filepath)
             # sprawdzanie czy taka kategoria juz istnieje
             # jesli nie, tworzymy nowa kategorie
             categoryObj = Property.get_object_by_tuple(Property.KEY_CATEGORY, category)
@@ -227,7 +226,7 @@ def modify_product_detail(pid):
                 if file:
                     filename = file.filename
                     path = "{}/{}".format(app.get_upload_folder, filename)
-                    file.save(path)
+                    file.save(path)                    
                     filepath = "{}{}".format("/static/images/photos/", filename)
                     product.set_photo(filepath)
                 products = Product\
@@ -238,7 +237,10 @@ def modify_product_detail(pid):
                     from os import remove
                     from os.path import abspath
                     file_abs = '{}/absklep{}'.format(abspath('.'), old_file)
-                    remove(file_abs)
+                    try:
+                        remove(file_abs)
+                    except:
+                        pass
             elif to_change == 'unit_price':
                 setattr(product, to_change, int(read_form('nval').replace('.',"")))                
             else:
@@ -265,7 +267,10 @@ def remove_product(pid):
         from os import remove
         from os.path import abspath
         file_abs = '{}/absklep{}'.format(abspath('.'), old_file)
-        remove(file_abs)
+        try:    
+            remove(file_abs)
+        except:
+            pass
     app.db.session.delete(Product.query.get(pid))
     app.db.session.commit()
 
