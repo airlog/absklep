@@ -6,7 +6,7 @@ from .. import app
 from ..controllers import load_cart_cookie, delete_cart_cookie
 from ..forms import Login
 from ..models import Property, ProductAmount, Order
-from ..util import read_form, only_employee
+from ..util import read_form, only_employee, only_customer
 
 
 MAX_ON_PAGE = 10
@@ -16,6 +16,7 @@ MAX_ON_PAGE = 10
 @app.route('/orders/sort/<sort>/')
 @app.route('/orders/page/<int:page>/sort/<sort>/')
 @login_required
+@only_customer()
 def ordersview(page=1, sort='date_down'):
     if page <= 0:
         page = 1
@@ -40,6 +41,7 @@ def ordersview(page=1, sort='date_down'):
 
 @app.route('/orders/show/<int:oid>/')
 @login_required
+@only_customer()
 def detailsview(oid):
     orders = list(filter(lambda o: o.id == oid, g.current_user.orders))
     return render_template('details.html',
@@ -49,6 +51,7 @@ def detailsview(oid):
 
 @app.route('/orders/show/<int:oid>/archival/')
 @login_required
+@only_customer()
 def archival_details_view(oid):
     archivals = list(filter(lambda o: o.id == oid, g.current_user.archivals))
     return render_template('archival_details.html',
@@ -59,6 +62,7 @@ def archival_details_view(oid):
 
 @app.route('/orders/new', methods=['GET', 'POST'])
 @login_required
+@only_customer()
 def makeorderview():
     def get():
         return render_template('address.html',

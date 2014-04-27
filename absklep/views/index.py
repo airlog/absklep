@@ -5,12 +5,13 @@ from flask.ext.login import login_required
 from .. import app
 from ..forms import Login
 from ..models import Product, Property, Comment
-from ..util import read_form
+from ..util import read_form, only_customer
 
 MAX_ON_PAGE = 10
 
 @app.route('/')
 @app.route('/products/')
+@only_customer()
 def index():
     def product_rate(product):
         rates = [c.rate for c in product.comments]
@@ -36,6 +37,7 @@ def index():
 @app.route('/products/category/<int:cid>/sort/<sort>/')
 @app.route('/products/category/<int:cid>/page/<int:page>/')
 @app.route('/products/category/<int:cid>/page/<int:page>/sort/<sort>/')
+@only_customer()
 def categoryview(cid, page=1, sort='name_up'):
     from ..models import Product, Property, product_property_assignment
 
@@ -77,6 +79,7 @@ def categoryview(cid, page=1, sort='name_up'):
 
 @app.route('/products/<int:pid>/comments/new', methods=['POST'])
 @login_required
+@only_customer()
 def new_comment_product(pid):
     user = g.current_user
     product = Product.query.get(pid)

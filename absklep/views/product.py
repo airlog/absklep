@@ -5,7 +5,7 @@ from flask.ext.login import login_required
 from .. import app
 from ..forms import Login
 from ..models import Comment, Customer, Product, Property, product_property_assignment
-from ..util import read_form, only_employee
+from ..util import read_form, only_customer, only_employee
 
 
 def is_allowed_to_comment(user, product):
@@ -20,6 +20,7 @@ def is_allowed_to_comment(user, product):
 
 
 @app.route('/products/<int:pid>/')
+@only_customer()
 def productview(pid):
     args = {
         "logform": Login(),
