@@ -103,10 +103,11 @@
             {% block pageMiddle %}
                 <div class="product-group">
                     <div class="frame-title">Polecane</div>
+                    {% set i = 0 %}
                     {% for p in products_best %}
                     <div class="product-mini pull-left">
                         <div class="text-center">
-                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                            <img src="{{ p.photo_src }}" alt="brak zdjecia" width="128" height="128"/>
                         </div>
                         <div>
                             <div><h4>{{ p.name }}</h4></div>
@@ -120,6 +121,10 @@
                             </div>
                         </div>
                     </div>
+						{% set i = i+1 %}
+						{% if i%2 == 0 %}
+							<div style="clear:both;"></div>
+						{% endif %} 
                     {% endfor %}
                 </div>
 
@@ -128,10 +133,11 @@
 
                 <div class="product-group">
                     <div class="frame-title">Ostatnio dodane</div>
+                    {% set i = 0 %}
                     {% for p in products_last %}
                     <div class="product-mini pull-left">
                         <div class="text-center">
-                            <img src="/static/images/nophoto.png" alt="brak zdjecia" width="128" height="128"/>
+                            <img src="{{ p.photo_src }}" alt="brak zdjecia" width="128" height="128"/>
                         </div>
                         <div>
                             <div><h4>{{ p.name }}</h4></div>
@@ -145,6 +151,10 @@
                             </div>
                         </div>
                     </div>
+						{% set i = i+1 %}
+						{% if i%2 == 0 %}
+							<div style="clear:both;"></div>
+						{% endif %} 
                     {% endfor %}
                 </div> 
                 <div class="clearfix"></div><br/>
@@ -157,8 +167,8 @@
                     {% for p in g.last_visited %}
 						<div>
 							<a href="/products/{{ p.id }}/"/>
-								{{ p.name }} <br/>
-								<img src="/static/images/nophoto.png" width="128" height="128"/>
+								<img src="{{ p.photo_src }}" width="128" height="128"/><br/>
+								{{ p.name }}
 							</a>
 						</div>
 					{% endfor %}

@@ -48,6 +48,7 @@ class Product(db.Model):
     units_in_stock = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(LONG_TEXT))
     date_added = db.Column(db.DateTime, nullable=False)
+    photo_src = db.Column(db.String(SHORT_TEXT))
 
     comments = db.relationship('Comment', cascade="all,delete", backref=db.backref('product'))
     properties = db.relationship('Property', cascade="all,delete", backref=db.backref('products'), secondary=product_property_assignment)
@@ -59,7 +60,11 @@ class Product(db.Model):
         if date is None:
             date = datetime.now()
         self.date_added = date
+        self.photo_src = '/static/images/nophoto.png'
 
+    def set_photo(self, src):
+        self.photo_src = src
+        return self
 
 class Comment(db.Model):
 
@@ -211,6 +216,9 @@ class ProductAmount(db.Model):
         self.product = product
         return self
         
+    def set_product_id(self, product_id):
+        self.product_id = product_id
+        return self
 
 class Order(db.Model):
 
