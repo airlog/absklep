@@ -103,6 +103,7 @@
             {% block pageMiddle %}
                 <div class="product-group">
                     <div class="frame-title">Polecane</div>
+                    {% set i = 0 %}
                     {% for p in products_best %}
                     <div class="product-mini pull-left">
                         <div class="text-center">
@@ -120,6 +121,10 @@
                             </div>
                         </div>
                     </div>
+						{% set i = i+1 %}
+						{% if i%2 == 0 %}
+							<div style="clear:both;"></div>
+						{% endif %} 
                     {% endfor %}
                 </div>
 
@@ -128,6 +133,7 @@
 
                 <div class="product-group">
                     <div class="frame-title">Ostatnio dodane</div>
+                    {% set i = 0 %}
                     {% for p in products_last %}
                     <div class="product-mini pull-left">
                         <div class="text-center">
@@ -145,6 +151,10 @@
                             </div>
                         </div>
                     </div>
+						{% set i = i+1 %}
+						{% if i%2 == 0 %}
+							<div style="clear:both;"></div>
+						{% endif %} 
                     {% endfor %}
                 </div> 
                 <div class="clearfix"></div><br/>

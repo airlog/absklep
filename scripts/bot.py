@@ -25,7 +25,6 @@ def parsePage(app, category, address):
                     if div2.get('class') == ['image-color-container']:
                         for img in div2.find_all('img'):
                             p['photo'] = img.get('src')
-                            print(p['photo'])
                             
                 for ul in div.find_all('ul'):
                     p['properties'] = []
@@ -58,34 +57,33 @@ def parsePage(app, category, address):
                         property = Property('Kategoria',category)
                     product.properties.append(property)
 
-                    print(product)
-
                     app.db.session.add(product)
                     app.db.session.commit()             
     
-def load_database2(app):	
+def get_vobis_database(app):	
+    print('Notebooki')
     for i in [2,3]:
         parsePage(app,"Notebooki","http://www.vobis.pl/wszystkie-kategorie/notebooki/notebooki-3-787.html?str={}".format(i))
-#    print('Tablety')
-#    for i in [2,3]:
-# 	   parsePage(app,"Tablety","http://www.vobis.pl/wszystkie-kategorie/tablety/z-systemem-android-3-844.html?str={}".format(i))
+    print('Tablety')
+    for i in [2,3]:
+ 	   parsePage(app,"Tablety","http://www.vobis.pl/wszystkie-kategorie/tablety/z-systemem-android-3-844.html?str={}".format(i))
     print('Procesory')
     parsePage(app,"Procesory","http://www.vobis.pl/wszystkie-kategorie/komputery/podzespoly-pc/procesory-3-989.html")
     print('Monitory')
     parsePage(app,"Monitory","http://www.vobis.pl/wszystkie-kategorie/peryferia-i-akcesoria/monitory-3-812.html")
-#    print('Karty graficzne')
-#    parsePage(app,"Karty graficzne","http://www.vobis.pl/wszystkie-kategorie/komputery/podzespoly-pc/karty-graficzne-3-990.html")
-#    print('Klawiatury')
-#    parsePage(app,"Klawiatury","http://www.vobis.pl/wszystkie-kategorie/peryferia-i-akcesoria/klawiatury-myszki-i-kontrolery/klawiatury-3-1356.html")
-#    print('Myszki')
-#    parsePage(app,"Myszki","http://www.vobis.pl/wszystkie-kategorie/peryferia-i-akcesoria/klawiatury-myszki-i-kontrolery/myszki-3-1359.html")
-#    print('Płyty główne')
-#    parsePage(app,"Płyty główne","http://www.vobis.pl/wszystkie-kategorie/komputery/podzespoly-pc/plyty-glowne-3-988.html")
+    print('Karty graficzne')
+    parsePage(app,"Karty graficzne","http://www.vobis.pl/wszystkie-kategorie/komputery/podzespoly-pc/karty-graficzne-3-990.html")
+    print('Klawiatury')
+    parsePage(app,"Klawiatury","http://www.vobis.pl/wszystkie-kategorie/peryferia-i-akcesoria/klawiatury-myszki-i-kontrolery/klawiatury-3-1356.html")
+    print('Myszki')
+    parsePage(app,"Myszki","http://www.vobis.pl/wszystkie-kategorie/peryferia-i-akcesoria/klawiatury-myszki-i-kontrolery/myszki-3-1359.html")
+    print('Płyty główne')
+    parsePage(app,"Płyty główne","http://www.vobis.pl/wszystkie-kategorie/komputery/podzespoly-pc/plyty-glowne-3-988.html")
 
 if __name__ == '__main__':
     from sys import exit
     
-    load_database2(absklep.app)
+     get_vobis_database(absklep.app)
 
     exit(0)
 
