@@ -54,7 +54,7 @@
                 <tbody>
                     {% for pa in order.products_amount %}
                     <tr>
-                        <td>{{ pa.product.name }}</td>
+                        <td><a href="/products/{{pa.product.id}}/">{{ pa.product.name }}</a></td>
                         <td>{{ "{0:.2f}".format(pa.product.unit_price/100.0) }} PLN</td>
                         <td>&times; {{ pa.amount }}</td>
                         <td>{{ "{0:.2f}".format((pa.amount * pa.product.unit_price)/100.0) }} PLN</td>
