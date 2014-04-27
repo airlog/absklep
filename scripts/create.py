@@ -1,12 +1,15 @@
-from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount, Archival
+from absklep.models import Product, Property, Customer, Comment, Order, Employee, ProductAmount, Archival
 from datetime import date, datetime
 import re
 
+import absklep
 
-def load_database(app):
-    app.db.drop_all()
-    app.db.create_all()
-    with open('absklep/data/customers.csv','r') as f:
+def get_data_file(data_file='data/customers.csv'):
+    import os.path
+    return os.path.join(os.path.dirname(__file__), data_file)
+
+def create_customers(app):
+    with open(get_data_file(),'r') as f:
         f.readline()
         line = f.readline()
         for i in range(480):
@@ -18,4 +21,11 @@ def load_database(app):
             app.db.session.add(Employee(employee[0], employee[1], employee[9], employee[0]+employee[1]+'123', employee[8][:5]+employee[8][6:]))
             line = f.readline()
     app.db.session.commit()
-    
+
+if __name__ == '__main__':
+    from sys import exit
+
+    create_customers(absklep.app)
+
+    exit(0)
+
