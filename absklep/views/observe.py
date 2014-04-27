@@ -5,11 +5,13 @@ from flask.ext.login import login_required
 from .. import app
 from ..forms import Login
 from ..models import Product, Property
+from ..util import only_customer
 
 MAX_ON_PAGE = 20
 
 @app.route('/products/<int:pid>/observe/')
 @login_required
+@only_customer()
 def observe_product(pid):
     p = Product.query.get(pid)
     g.current_user.observed.append(p)
@@ -20,6 +22,7 @@ def observe_product(pid):
 
 @app.route('/products/<int:pid>/unobserve/')
 @login_required
+@only_customer()
 def unobserve_product(pid):
     p = Product.query.get(pid)
     g.current_user.observed.remove(p)
@@ -33,6 +36,7 @@ def unobserve_product(pid):
 @app.route('/observed/page/<page>/')
 @app.route('/observed/page/<page>/sort/<sort>/')
 @login_required
+@only_customer()
 def observedview(page=1, sort='name_up'):
     if page <= 0:
         page = 1
