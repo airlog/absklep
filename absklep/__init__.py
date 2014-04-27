@@ -141,9 +141,10 @@ def load_database(a):
         a.db.session.commit()
         
     a.db.drop_all()
-    
     a.db.create_all()
-    some_data_for_tests()
+#    some_data_for_tests()
+#    from absklep.bot import load_database2
+#    load_database2(app)
 
 from os.path import abspath
 app.get_upload_folder = '{}/{}'.format(abspath('.'),'absklep/static/images/photos')
