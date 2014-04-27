@@ -30,20 +30,8 @@ def load_config(a, package=None):
 
 
 def load_database(a):
-    def some_data_for_tests():
-        from .models import Product, Property, Customer, Comment, Order, Employee, ProductAmount, Archival
-        from datetime import date, datetime
-        
-        e1 = Employee('Marek','Marek','marek@buziaczek.pl','123','12345678901')
-        e2 = Employee('Jarek','Jarek','jarek@buziaczek.pl','123','12345678902')
-
-        a.db.session.add(e1)
-        a.db.session.add(e2)
-        a.db.session.commit()
-        
-    a.db.drop_all()
+            
     a.db.create_all()
-    some_data_for_tests()
 
 from os.path import abspath
 app.get_upload_folder = '{}/{}'.format(abspath('.'),'absklep/static/images/photos')

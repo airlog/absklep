@@ -20,6 +20,15 @@ def create_customers(app):
             employee = re.findall('([^"]*)(?:",|\n)', line)
             app.db.session.add(Employee(employee[0], employee[1], employee[9], employee[0]+employee[1]+'123', employee[8][:5]+employee[8][6:]))
             line = f.readline()
+
+    c1 = Customer('ala@gmail.pl','ala')
+    e1 = Employee('Marek','Marek','marek@buziaczek.pl','123','12345678901')
+    e2 = Employee('Jarek','Jarek','jarek@buziaczek.pl','123','12345678902')
+
+    app.db.session.add(c1)
+    app.db.session.add(e1)
+    app.db.session.add(e2)
+
     app.db.session.commit()
 
 if __name__ == '__main__':
