@@ -55,3 +55,27 @@ def only_employee(login_callback=None, message=None):
             abort(403)
         return only_employee_decorated_view
     return only_employee_helper
+
+
+def only_customer(message=None):
+    def only_customer_helper(func):
+        from functools import wraps
+
+        @wraps(func)
+        def only_customer_decorated_view(*args, **kwargs):
+            from flask import abort, flash, g
+
+            # zalogowany pracownik nie ma dostępu
+            if g.current_user.is_authenticated() and is_employee(g.current_user):
+                if message is not None:
+                    flash(message)
+                abort(403)
+
+            # zalogowany klient ma dostęp
+            if not g.current_user.is_authenticated() or is_customer(g.current_user):
+                return func(*args, **kwargs)
+
+            # w innych wypadkach
+            abort(403)
+        return only_customer_decorated_view
+    return only_customer_helper
